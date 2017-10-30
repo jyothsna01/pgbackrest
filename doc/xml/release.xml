@@ -10,6 +10,28 @@
     </intro>
 
     <release-list>
+        <release date="XXXX-XX-XX" version="1.26dev" title="UNDER DEVELOPMENT">
+            <release-core-list>
+                <release-refactor-list>
+                    <release-item>
+                        <p>Add <id>list</id> type for options.  The <id>hash</id> type was being used for lists with an additional flag (`value-hash`) to indicate that it was not really a hash.</p>
+                    </release-item>
+
+                    <release-item>
+                        <p>Remove configurable option hints. <br-option>db-path</br-option> was the only option with a hint so the feature seemed wasteful.  All missing stanza options now output the same hint without needing configuration.</p>
+                    </release-item>
+                </release-refactor-list>
+            </release-core-list>
+
+            <release-test-list>
+                <release-refactor-list>
+                    <release-item>
+                        <p>Update Debian/Ubuntu containers to download latest version of <file>pip</file>.</p>
+                    </release-item>
+                </release-refactor-list>
+            </release-test-list>
+        </release>
+
         <release date="2017-10-24" version="1.25" title="S3 Performance Improvements">
             <release-core-list>
                 <release-bug-list>

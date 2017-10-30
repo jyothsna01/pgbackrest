@@ -6,7 +6,7 @@ package pgBackRest::LibCAuto;
 # Library version (.999 indicates development version)
 sub libcAutoVersion
 {
-    return '1.25';
+    return '1.26.999';
 }
 
 # Configuration option value constants
@@ -196,6 +196,7 @@ sub libcAutoExportTag
             'CFGOPTDEF_TYPE_FLOAT',
             'CFGOPTDEF_TYPE_HASH',
             'CFGOPTDEF_TYPE_INTEGER',
+            'CFGOPTDEF_TYPE_LIST',
             'CFGOPTDEF_TYPE_STRING',
             'cfgCommandId',
             'cfgOptionId',
@@ -221,7 +222,6 @@ sub libcAutoExportTag
             'cfgRuleOptionType',
             'cfgRuleOptionValid',
             'cfgOptionTotal',
-            'cfgRuleOptionValueHash',
         ],
 
         debug =>

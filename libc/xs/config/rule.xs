@@ -368,17 +368,3 @@ OUTPUT:
 
 U32
 cfgOptionTotal()
-
-bool
-cfgRuleOptionValueHash(optionId)
-    U32 optionId
-CODE:
-    RETVAL = false;
-
-    if (cfgRuleOptionType(cfgOptionRuleIdFromId(optionId)) == cfgRuleOptDefTypeHash &&
-        cfgOptionRuleIdFromId(optionId) != cfgRuleOptDbInclude)
-    {
-        RETVAL = true;
-    }
-OUTPUT:
-    RETVAL

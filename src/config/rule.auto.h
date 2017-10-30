@@ -37,6 +37,7 @@ typedef enum
     cfgRuleOptDefTypeFloat,
     cfgRuleOptDefTypeHash,
     cfgRuleOptDefTypeInteger,
+    cfgRuleOptDefTypeList,
     cfgRuleOptDefTypeString,
 } ConfigRuleOptionType;
 

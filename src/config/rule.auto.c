@@ -765,7 +765,7 @@ OptionRule optionRule[] = CONFIG_OPTION_LIST
         CONFIG_OPTION_NAME("db-include")
         CONFIG_OPTION_REQUIRED(false)
         CONFIG_OPTION_SECTION(cfgRuleSectionGlobal)
-        CONFIG_OPTION_TYPE(cfgRuleOptDefTypeHash)
+        CONFIG_OPTION_TYPE(cfgRuleOptDefTypeList)
 
         CONFIG_OPTION_INDEX_TOTAL(1)
         CONFIG_OPTION_NEGATE(false)

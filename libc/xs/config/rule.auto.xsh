@@ -13,6 +13,7 @@ Option type constants
 #define CFGOPTDEF_TYPE_FLOAT                                        cfgRuleOptDefTypeFloat
 #define CFGOPTDEF_TYPE_HASH                                         cfgRuleOptDefTypeHash
 #define CFGOPTDEF_TYPE_INTEGER                                      cfgRuleOptDefTypeInteger
+#define CFGOPTDEF_TYPE_LIST                                         cfgRuleOptDefTypeList
 #define CFGOPTDEF_TYPE_STRING                                       cfgRuleOptDefTypeString
 
 #endif
