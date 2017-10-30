@@ -15,6 +15,8 @@ use English '-no_match_vars';
 use pgBackRest::Common::Exception;
 use pgBackRest::Common::Ini;
 use pgBackRest::Common::Log;
+use pgBackRest::Config::Config;
+use pgBackRest::Storage::Base;
 use pgBackRest::Version;
 
 use pgBackRestTest::Common::ExecuteTest;
@@ -280,6 +282,54 @@ sub run
         storageTest()->put($strTestFile, iniRender($hIni));
 
         $self->testResult(sub {new pgBackRest::Common::Ini($strTestFile)}, '[object]', 'invalid main header - load copy');
+
+        #---------------------------------------------------------------------------------------------------------------------------
+        # Prepend encryption Magic signature to copy (main invalid) to simulate encryption
+        executeTest('echo "' . CIPHER_MAGIC . '$(cat ' . $strTestFileCopy . ')" > ' . $strTestFileCopy);
+
+        $self->testException(sub {new pgBackRest::Common::Ini($strTestFile)}, ERROR_CIPHER,
+            "unable to parse '$strTestFileCopy'" .
+            "\nHINT: Is or was the repo encrypted?");
+
+        # Prepend encryption Magic signature to main to simulate encryption
+        executeTest('echo "' . CIPHER_MAGIC . '$(cat ' . $strTestFile . ')" > ' . $strTestFile);
+
+        $self->testException(sub {new pgBackRest::Common::Ini($strTestFile)}, ERROR_CIPHER,
+            "unable to parse '$strTestFile'" .
+            "\nHINT: Is or was the repo encrypted?");
+
+        # Encryption
+        #---------------------------------------------------------------------------------------------------------------------------
+        executeTest("rm -rf ${strTestFile}*");
+
+        my $strEncKey = 'x';
+        my $strEncKeySub = 'y';
+
+        # Unencrypted storage but a key passed
+        $self->testException(sub {new pgBackRest::Common::Ini($strTestFile, {bLoad => false,
+            strCipherKey => $strEncKey})}, ERROR_ASSERT,
+            "a user encryption key and sub encryption key are both required when encrypting");
+
+        # Unencrypted storage but a sub key passed
+        $self->testException(sub {new pgBackRest::Common::Ini($strTestFile, {bLoad => false,
+            strCipherKeySub => $strEncKeySub})}, ERROR_ASSERT,
+            "a user encryption key and sub encryption key are both required when encrypting");
+
+        # Create Encrypted storage
+        my $oStorage = new pgBackRest::Storage::Local($self->testPath(), new pgBackRest::Storage::Posix::Driver(),
+            {strCipherType => CFGOPTVAL_REPO_CIPHER_TYPE_AES_256_CBC, strCipherKeyUser => $strEncKey});
+
+        $self->testException(sub {new pgBackRest::Common::Ini($strTestFile, {oStorage => $oStorage})}, ERROR_CIPHER,
+            "encryption key is required when storage is encrypted");
+
+        $self->testException(sub {new pgBackRest::Common::Ini($strTestFile, {bLoad => false, oStorage => $oStorage,
+            strCipherKey => $strEncKey})}, ERROR_ASSERT,
+            "a user encryption key and sub encryption key are both required when encrypting");
+
+        $oIni = $self->testResult(sub {new pgBackRest::Common::Ini($strTestFile, {bLoad => false, oStorage => $oStorage,
+            strCipherKey => $strEncKey, strCipherKeySub => $strEncKeySub})}, '[object]', 'create new ini with encryption keys');
+        $self->testResult(sub {($oIni->cipherKeySub() eq $strEncKeySub) &&
+            ($oIni->cipherKey() eq $strEncKey)}, true, '    new ini has encryption keys');
     }
 
     ################################################################################################################################

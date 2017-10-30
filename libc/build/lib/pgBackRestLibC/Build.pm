@@ -52,6 +52,14 @@ my $rhExport =
         )],
     },
 
+    'cipher' =>
+    {
+        &BLD_EXPORTTYPE_CONSTANT => [qw(
+            CIPHER_MODE_ENCIPHER
+            CIPHER_MODE_DECIPHER
+        )],
+    },
+
     'config' =>
     {
         &BLD_EXPORTTYPE_SUB => [qw(
@@ -113,6 +121,13 @@ my $rhExport =
         &BLD_EXPORTTYPE_SUB => [qw(
             decodeToBin
             encodeToStr
+        )],
+    },
+
+    'random' =>
+    {
+        &BLD_EXPORTTYPE_SUB => [qw(
+            randomBytes
         )],
     },
 };

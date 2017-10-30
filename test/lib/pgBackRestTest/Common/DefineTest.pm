@@ -155,6 +155,7 @@ my $oTestDef =
                 },
                 {
                     &TESTDEF_NAME => 'ini',
+                    &TESTDEF_CLIB => true,
                     &TESTDEF_TOTAL => 10,
 
                     &TESTDEF_COVERAGE =>
@@ -196,6 +197,35 @@ my $oTestDef =
                     &TESTDEF_COVERAGE =>
                     {
                         'Common/Log' => TESTDEF_COVERAGE_PARTIAL,
+                    },
+                },
+            ]
+        },
+        # Cipher tests
+        {
+            &TESTDEF_NAME => 'cipher',
+            &TESTDEF_CONTAINER => true,
+
+            &TESTDEF_TEST =>
+            [
+                {
+                    &TESTDEF_NAME => 'random',
+                    &TESTDEF_TOTAL => 1,
+                    &TESTDEF_C => true,
+
+                    &TESTDEF_COVERAGE =>
+                    {
+                        'cipher/random' => TESTDEF_COVERAGE_FULL,
+                    },
+                },
+                {
+                    &TESTDEF_NAME => 'block',
+                    &TESTDEF_TOTAL => 2,
+                    &TESTDEF_C => true,
+
+                    &TESTDEF_COVERAGE =>
+                    {
+                        'cipher/block' => TESTDEF_COVERAGE_FULL,
                     },
                 },
             ]
@@ -303,6 +333,16 @@ my $oTestDef =
                     },
                 },
                 {
+                    &TESTDEF_NAME => 'filter-cipher-block',
+                    &TESTDEF_TOTAL => 2,
+                    &TESTDEF_CLIB => true,
+
+                    &TESTDEF_COVERAGE =>
+                    {
+                        'Storage/Filter/CipherBlock' => TESTDEF_COVERAGE_FULL,
+                    },
+                },
+                {
                     &TESTDEF_NAME => 'posix',
                     &TESTDEF_TOTAL => 9,
 
@@ -349,7 +389,7 @@ my $oTestDef =
                 },
                 {
                     &TESTDEF_NAME => 'local',
-                    &TESTDEF_TOTAL => 9,
+                    &TESTDEF_TOTAL => 10,
                     &TESTDEF_CLIB => true,
 
                     &TESTDEF_COVERAGE =>
@@ -359,7 +399,8 @@ my $oTestDef =
                 },
                 {
                     &TESTDEF_NAME => 'helper',
-                    &TESTDEF_TOTAL => 4,
+                    &TESTDEF_TOTAL => 5,
+                    &TESTDEF_CLIB => true,
 
                     &TESTDEF_COVERAGE =>
                     {
@@ -404,7 +445,8 @@ my $oTestDef =
             [
                 {
                     &TESTDEF_NAME => 'unit',
-                    &TESTDEF_TOTAL => 1,
+                    &TESTDEF_CLIB => true,
+                    &TESTDEF_TOTAL => 2,
 
                     &TESTDEF_COVERAGE =>
                     {
@@ -416,13 +458,13 @@ my $oTestDef =
         # Archive tests
         {
             &TESTDEF_NAME => 'archive',
+            &TESTDEF_CONTAINER => true,
 
             &TESTDEF_TEST =>
             [
                 {
                     &TESTDEF_NAME => 'common',
                     &TESTDEF_TOTAL => 4,
-                    &TESTDEF_CONTAINER => true,
 
                     &TESTDEF_COVERAGE =>
                     {
@@ -431,8 +473,8 @@ my $oTestDef =
                 },
                 {
                     &TESTDEF_NAME => 'push',
-                    &TESTDEF_TOTAL => 7,
-                    &TESTDEF_CONTAINER => true,
+                    &TESTDEF_CLIB => true,
+                    &TESTDEF_TOTAL => 8,
 
                     &TESTDEF_COVERAGE =>
                     {
@@ -444,10 +486,20 @@ my $oTestDef =
                     },
                 },
                 {
+                    &TESTDEF_CONTAINER => false,
                     &TESTDEF_NAME => 'stop',
                     &TESTDEF_TOTAL => 7,
                     &TESTDEF_INDIVIDUAL => true,
                     &TESTDEF_EXPECT => true,
+                },
+                {
+                    &TESTDEF_NAME => 'info-unit',
+                    &TESTDEF_CLIB => true,
+                    &TESTDEF_TOTAL => 2,
+                    &TESTDEF_COVERAGE =>
+                    {
+                        'Archive/Info' => TESTDEF_COVERAGE_PARTIAL,
+                    },
                 },
             ]
         },
@@ -469,7 +521,8 @@ my $oTestDef =
                 },
                 {
                     &TESTDEF_NAME => 'info-unit',
-                    &TESTDEF_TOTAL => 2,
+                    &TESTDEF_CLIB => true,
+                    &TESTDEF_TOTAL => 3,
                     &TESTDEF_COVERAGE =>
                     {
                         'Backup/Info' => TESTDEF_COVERAGE_PARTIAL,
@@ -504,7 +557,8 @@ my $oTestDef =
             [
                 {
                     &TESTDEF_NAME => 'all',
-                    &TESTDEF_TOTAL => 7,
+                    &TESTDEF_CLIB => true,
+                    &TESTDEF_TOTAL => 8,
                     &TESTDEF_CONTAINER => true,
 
                     &TESTDEF_COVERAGE =>

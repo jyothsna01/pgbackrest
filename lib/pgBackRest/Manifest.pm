@@ -285,6 +285,8 @@ sub new
         $bLoad,
         $oStorage,
         $strDbVersion,
+        $strCipherKey,                          # Key to open the mainfest if the repo is encrypted
+        $strCipherKeySub,                       # Generated encryption key to encrypt the backup files if the repo is encrypted
     ) =
         logDebugParam
         (
@@ -293,10 +295,13 @@ sub new
             {name => 'bLoad', optional => true, default => true, trace => true},
             {name => 'oStorage', optional => true, default => storageRepo(), trace => true},
             {name => 'strDbVersion', optional => true, trace => true},
+            {name => 'strCipherKey', optional => true, redact => true},
+            {name => 'strCipherKeySub', optional => true, redact => true},
         );
 
     # Init object and store variables
-    my $self = $class->SUPER::new($strFileName, {bLoad => $bLoad, oStorage => $oStorage});
+    my $self = $class->SUPER::new($strFileName, {bLoad => $bLoad, oStorage => $oStorage, strCipherKey => $strCipherKey,
+        strCipherKeySub => $strCipherKeySub});
 
     # If manifest not loaded from a file then the db version must be set
     if (!$bLoad)

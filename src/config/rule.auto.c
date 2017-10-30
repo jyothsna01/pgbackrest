@@ -1596,6 +1596,86 @@ OptionRule optionRule[] = CONFIG_OPTION_LIST
     // -----------------------------------------------------------------------------------------------------------------------------
     CONFIG_OPTION
     (
+        CONFIG_OPTION_NAME("repo-cipher-key")
+        CONFIG_OPTION_REQUIRED(false)
+        CONFIG_OPTION_SECTION(cfgRuleSectionGlobal)
+        CONFIG_OPTION_TYPE(cfgRuleOptDefTypeString)
+
+        CONFIG_OPTION_INDEX_TOTAL(1)
+        CONFIG_OPTION_NEGATE(false)
+        CONFIG_OPTION_SECURE(true)
+
+        CONFIG_COMMAND_VALID_LIST
+        (
+            CONFIG_COMMAND_VALID(cfgRuleCmdArchiveGet)
+            CONFIG_COMMAND_VALID(cfgRuleCmdArchivePush)
+            CONFIG_COMMAND_VALID(cfgRuleCmdBackup)
+            CONFIG_COMMAND_VALID(cfgRuleCmdCheck)
+            CONFIG_COMMAND_VALID(cfgRuleCmdExpire)
+            CONFIG_COMMAND_VALID(cfgRuleCmdInfo)
+            CONFIG_COMMAND_VALID(cfgRuleCmdLocal)
+            CONFIG_COMMAND_VALID(cfgRuleCmdRemote)
+            CONFIG_COMMAND_VALID(cfgRuleCmdRestore)
+            CONFIG_COMMAND_VALID(cfgRuleCmdStanzaCreate)
+            CONFIG_COMMAND_VALID(cfgRuleCmdStanzaUpgrade)
+            CONFIG_COMMAND_VALID(cfgRuleCmdStart)
+            CONFIG_COMMAND_VALID(cfgRuleCmdStop)
+        )
+
+        CONFIG_OPTION_DATA
+        (
+            CONFIG_OPTION_DEPEND_LIST
+            (
+                cfgRuleOptRepoCipherType,
+                "aes-256-cbc"
+            )
+        )
+    )
+
+    // -----------------------------------------------------------------------------------------------------------------------------
+    CONFIG_OPTION
+    (
+        CONFIG_OPTION_NAME("repo-cipher-type")
+        CONFIG_OPTION_REQUIRED(true)
+        CONFIG_OPTION_SECTION(cfgRuleSectionGlobal)
+        CONFIG_OPTION_TYPE(cfgRuleOptDefTypeString)
+
+        CONFIG_OPTION_INDEX_TOTAL(1)
+        CONFIG_OPTION_NEGATE(false)
+        CONFIG_OPTION_SECURE(true)
+
+        CONFIG_COMMAND_VALID_LIST
+        (
+            CONFIG_COMMAND_VALID(cfgRuleCmdArchiveGet)
+            CONFIG_COMMAND_VALID(cfgRuleCmdArchivePush)
+            CONFIG_COMMAND_VALID(cfgRuleCmdBackup)
+            CONFIG_COMMAND_VALID(cfgRuleCmdCheck)
+            CONFIG_COMMAND_VALID(cfgRuleCmdExpire)
+            CONFIG_COMMAND_VALID(cfgRuleCmdInfo)
+            CONFIG_COMMAND_VALID(cfgRuleCmdLocal)
+            CONFIG_COMMAND_VALID(cfgRuleCmdRemote)
+            CONFIG_COMMAND_VALID(cfgRuleCmdRestore)
+            CONFIG_COMMAND_VALID(cfgRuleCmdStanzaCreate)
+            CONFIG_COMMAND_VALID(cfgRuleCmdStanzaUpgrade)
+            CONFIG_COMMAND_VALID(cfgRuleCmdStart)
+            CONFIG_COMMAND_VALID(cfgRuleCmdStop)
+        )
+
+        CONFIG_OPTION_DATA
+        (
+            CONFIG_OPTION_ALLOW_LIST
+            (
+                "none",
+                "aes-256-cbc"
+            )
+
+            CONFIG_OPTION_DEFAULT("none")
+        )
+    )
+
+    // -----------------------------------------------------------------------------------------------------------------------------
+    CONFIG_OPTION
+    (
         CONFIG_OPTION_NAME("repo-path")
         CONFIG_OPTION_REQUIRED(true)
         CONFIG_OPTION_SECTION(cfgRuleSectionGlobal)

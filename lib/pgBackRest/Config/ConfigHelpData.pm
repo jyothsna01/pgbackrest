@@ -599,6 +599,30 @@ my $oConfigHelpData =
                     "edit/check recovery.conf before manually restarting."
         },
 
+        # REPO-CIPHER-KEY Option Help
+        #---------------------------------------------------------------------------------------------------------------------------
+        'repo-cipher-key' =>
+        {
+            section => 'repository',
+            summary =>
+                "Repository cipher key.",
+            description =>
+                "Key used to encrypt/decrypt files of the repository."
+        },
+
+        # REPO-CIPHER-TYPE Option Help
+        #---------------------------------------------------------------------------------------------------------------------------
+        'repo-cipher-type' =>
+        {
+            section => 'repository',
+            summary =>
+                "Cipher used to encrypt the repository.",
+            description =>
+                "The following repository encryption types are supported:\n" .
+                "\n" .
+                "* xor - Exclusive Or"
+        },
+
         # REPO-PATH Option Help
         #---------------------------------------------------------------------------------------------------------------------------
         'repo-path' =>
@@ -945,6 +969,8 @@ my $oConfigHelpData =
                 'log-timestamp' => 'section',
                 'neutral-umask' => 'section',
                 'protocol-timeout' => 'section',
+                'repo-cipher-key' => 'section',
+                'repo-cipher-type' => 'section',
                 'repo-path' => 'section',
                 'repo-s3-bucket' => 'section',
                 'repo-s3-ca-file' => 'section',
@@ -999,6 +1025,8 @@ my $oConfigHelpData =
                 'neutral-umask' => 'section',
                 'process-max' => 'section',
                 'protocol-timeout' => 'section',
+                'repo-cipher-key' => 'section',
+                'repo-cipher-type' => 'section',
                 'repo-path' => 'section',
                 'repo-s3-bucket' => 'section',
                 'repo-s3-ca-file' => 'section',
@@ -1092,6 +1120,8 @@ my $oConfigHelpData =
 
                 'process-max' => 'section',
                 'protocol-timeout' => 'section',
+                'repo-cipher-key' => 'section',
+                'repo-cipher-type' => 'section',
                 'repo-path' => 'section',
                 'repo-s3-bucket' => 'section',
                 'repo-s3-ca-file' => 'section',
@@ -1191,6 +1221,8 @@ my $oConfigHelpData =
                 },
 
                 'protocol-timeout' => 'section',
+                'repo-cipher-key' => 'section',
+                'repo-cipher-type' => 'section',
                 'repo-path' => 'section',
                 'repo-s3-bucket' => 'section',
                 'repo-s3-ca-file' => 'section',
@@ -1233,6 +1265,8 @@ my $oConfigHelpData =
                 'log-path' => 'section',
                 'log-timestamp' => 'section',
                 'neutral-umask' => 'section',
+                'repo-cipher-key' => 'section',
+                'repo-cipher-type' => 'section',
                 'repo-path' => 'section',
                 'repo-s3-bucket' => 'section',
                 'repo-s3-ca-file' => 'section',
@@ -1313,6 +1347,8 @@ my $oConfigHelpData =
                 },
 
                 'protocol-timeout' => 'section',
+                'repo-cipher-key' => 'section',
+                'repo-cipher-type' => 'section',
                 'repo-path' => 'section',
                 'repo-s3-bucket' => 'section',
                 'repo-s3-ca-file' => 'section',
@@ -1387,6 +1423,8 @@ my $oConfigHelpData =
                 'process-max' => 'section',
                 'protocol-timeout' => 'section',
                 'recovery-option' => 'section',
+                'repo-cipher-key' => 'section',
+                'repo-cipher-type' => 'section',
                 'repo-path' => 'section',
                 'repo-s3-bucket' => 'section',
                 'repo-s3-ca-file' => 'section',
@@ -1550,6 +1588,8 @@ my $oConfigHelpData =
                 },
 
                 'protocol-timeout' => 'section',
+                'repo-cipher-key' => 'section',
+                'repo-cipher-type' => 'section',
                 'repo-path' => 'section',
                 'repo-s3-bucket' => 'section',
                 'repo-s3-ca-file' => 'section',
@@ -1616,6 +1656,8 @@ my $oConfigHelpData =
                 },
 
                 'protocol-timeout' => 'section',
+                'repo-cipher-key' => 'section',
+                'repo-cipher-type' => 'section',
                 'repo-path' => 'section',
                 'repo-s3-bucket' => 'section',
                 'repo-s3-ca-file' => 'section',
@@ -1662,6 +1704,8 @@ my $oConfigHelpData =
                 'log-path' => 'section',
                 'log-timestamp' => 'section',
                 'neutral-umask' => 'section',
+                'repo-cipher-key' => 'section',
+                'repo-cipher-type' => 'section',
                 'repo-path' => 'section',
                 'repo-s3-bucket' => 'section',
                 'repo-s3-ca-file' => 'section',
@@ -1724,6 +1768,8 @@ my $oConfigHelpData =
                 'log-path' => 'section',
                 'log-timestamp' => 'section',
                 'neutral-umask' => 'section',
+                'repo-cipher-key' => 'section',
+                'repo-cipher-type' => 'section',
                 'repo-path' => 'section',
                 'repo-s3-bucket' => 'section',
                 'repo-s3-ca-file' => 'section',

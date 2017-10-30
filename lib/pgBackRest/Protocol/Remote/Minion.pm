@@ -115,6 +115,8 @@ sub init
             my $oDestinationFileIo = $oStorage->openWrite(@{shift()});
             $oStorage->copy(new pgBackRest::Protocol::Storage::File($self, $oDestinationFileIo), $oDestinationFileIo);
         },
+
+        &OP_STORAGE_CIPHER_KEY_USER => sub {$oStorage->cipherKeyUser()},
         &OP_STORAGE_EXISTS => sub {$oStorage->exists(@{shift()})},
         &OP_STORAGE_LIST => sub {$oStorage->list(@{shift()})},
         &OP_STORAGE_MANIFEST => sub {$oStorage->manifest(@{shift()})},

@@ -941,6 +941,22 @@ ConfigOptionData configOptionData[] = CONFIG_OPTION_LIST
     //------------------------------------------------------------------------------------------------------------------------------
     CONFIG_OPTION
     (
+        CONFIG_OPTION_NAME("repo-cipher-key")
+        CONFIG_OPTION_INDEX(0)
+        CONFIG_OPTION_RULE_ID(cfgRuleOptRepoCipherKey)
+    )
+
+    //------------------------------------------------------------------------------------------------------------------------------
+    CONFIG_OPTION
+    (
+        CONFIG_OPTION_NAME("repo-cipher-type")
+        CONFIG_OPTION_INDEX(0)
+        CONFIG_OPTION_RULE_ID(cfgRuleOptRepoCipherType)
+    )
+
+    //------------------------------------------------------------------------------------------------------------------------------
+    CONFIG_OPTION
+    (
         CONFIG_OPTION_NAME("repo-path")
         CONFIG_OPTION_INDEX(0)
         CONFIG_OPTION_RULE_ID(cfgRuleOptRepoPath)

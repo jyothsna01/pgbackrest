@@ -43,6 +43,12 @@ use constant INI_KEY_FORMAT                                         => 'backrest
 use constant INI_KEY_VERSION                                        => 'backrest-version';
     push @EXPORT, qw(INI_KEY_VERSION);
 
+use constant INI_SECTION_CIPHER                                     => 'cipher';
+    push @EXPORT, qw(INI_SECTION_CIPHER);
+
+use constant INI_KEY_CIPHER_KEY                                     => 'cipher-key';
+    push @EXPORT, qw(INI_KEY_CIPHER_KEY);
+
 ####################################################################################################################################
 # Ini file copy extension
 ####################################################################################################################################
@@ -84,6 +90,8 @@ sub new
         $self->{iInitFormat},
         $self->{strInitVersion},
         my $bIgnoreMissing,
+        $self->{strCipherKey},              # Key to read/write the file
+        my $strCipherKeySub,                # Key to read/write subsequent files
     ) =
         logDebugParam
         (
@@ -95,7 +103,14 @@ sub new
             {name => 'iInitFormat', optional => true, default => BACKREST_FORMAT, trace => true},
             {name => 'strInitVersion', optional => true, default => BACKREST_VERSION, trace => true},
             {name => 'bIgnoreMissing', optional => true, default => false, trace => true},
+            {name => 'strCipherKey', optional => true, trace => true},
+            {name => 'strCipherKeySub', optional => true, trace => true},
         );
+
+    if (defined($self->{oStorage}->cipherKeyUser()) && !defined($self->{strCipherKey}))
+    {
+        confess &log(ERROR, 'encryption key is required when storage is encrypted', ERROR_CIPHER);
+    }
 
     # Set changed to false
     $self->{bModified} = false;
@@ -115,11 +130,22 @@ sub new
         $self->headerCheck();
     }
 
-    # Initialize if not loading from string and file does not exist
+    # Initialize if not loading from string and file does not exist # CSHANG OR HAS NOT BEEN LOADED???
     if (!$self->{bExists} && !defined($strContent))
     {
         $self->numericSet(INI_SECTION_BACKREST, INI_KEY_FORMAT, undef, $self->{iInitFormat});
         $self->set(INI_SECTION_BACKREST, INI_KEY_VERSION, undef, $self->{strInitVersion});
+
+        # Determine if the encryption key section should be set
+        if (defined($self->{strCipherKey}) && defined($strCipherKeySub))
+        {
+            $self->set(INI_SECTION_CIPHER, INI_KEY_CIPHER_KEY, undef, $strCipherKeySub);
+        }
+        elsif ((defined($self->{strCipherKey}) && !defined($strCipherKeySub)) ||
+            (!defined($self->{strCipherKey}) && defined($strCipherKeySub)))
+        {
+            confess &log(ASSERT, 'a user encryption key and sub encryption key are both required when encrypting');
+        }
     }
 
     return $self;
@@ -134,27 +160,37 @@ sub loadVersion
     my $bCopy = shift;
     my $bIgnoreError = shift;
 
-    # Load main
-    my $rstrContent = $self->{oStorage}->get(
-        $self->{oStorage}->openRead($self->{strFileName} . ($bCopy ? INI_COPY_EXT : ''), {bIgnoreMissing => $bIgnoreError}));
-
-    # If the file exists then attempt to parse it
-    if (defined($rstrContent))
+    # Make sure the file encryption setting is valid for the repo
+    if ($self->{oStorage}->encryptionValid($self->{oStorage}->encrypted($self->{strFileName} . ($bCopy ? INI_COPY_EXT : ''),
+        {bIgnoreMissing => $bIgnoreError})))
     {
+        # Load main
+        my $rstrContent = $self->{oStorage}->get(
+            $self->{oStorage}->openRead($self->{strFileName} . ($bCopy ? INI_COPY_EXT : ''),
+            {bIgnoreMissing => $bIgnoreError, strCipherKey => $self->{strCipherKey}}));
 
-        my $rhContent = iniParse($$rstrContent, {bIgnoreInvalid => $bIgnoreError});
-
-        # If the content is valid then check the header
-        if (defined($rhContent))
+        # If the file exists then attempt to parse it
+        if (defined($rstrContent))
         {
-            $self->{oContent} = $rhContent;
+            my $rhContent = iniParse($$rstrContent, {bIgnoreInvalid => $bIgnoreError});
 
-            # If the header is invalid then undef content
-            if (!$self->headerCheck({bIgnoreInvalid => $bIgnoreError}))
+            # If the content is valid then check the header
+            if (defined($rhContent))
             {
-                delete($self->{oContent});
+                $self->{oContent} = $rhContent;
+
+                # If the header is invalid then undef content
+                if (!$self->headerCheck({bIgnoreInvalid => $bIgnoreError}))
+                {
+                    delete($self->{oContent});
+                }
             }
         }
+    }
+    else
+    {
+        confess &log(ERROR, "unable to parse '$self->{strFileName}" . ($bCopy ? INI_COPY_EXT : '') . "'" .
+            "\nHINT: Is or was the repo encrypted?", ERROR_CIPHER);
     }
 
     return defined($self->{oContent});
@@ -388,9 +424,10 @@ sub save
         $self->hash();
 
         # Save the file
-        $self->{oStorage}->put($self->{strFileName}, iniRender($self->{oContent}));
+        $self->{oStorage}->put($self->{strFileName}, iniRender($self->{oContent}), {strCipherKey => $self->{strCipherKey}});
         $self->{oStorage}->pathSync(dirname($self->{strFileName}));
-        $self->{oStorage}->put($self->{strFileName} . INI_COPY_EXT, iniRender($self->{oContent}));
+        $self->{oStorage}->put($self->{strFileName} . INI_COPY_EXT, iniRender($self->{oContent}),
+            {strCipherKey => $self->{strCipherKey}});
         $self->{oStorage}->pathSync(dirname($self->{strFileName}));
         $self->{bModified} = false;
 
@@ -418,7 +455,8 @@ sub saveCopy
     }
 
     $self->hash();
-    $self->{oStorage}->put($self->{strFileName} . INI_COPY_EXT, iniRender($self->{oContent}));
+    $self->{oStorage}->put($self->{strFileName} . INI_COPY_EXT, iniRender($self->{oContent}),
+        {strCipherKey => $self->{strCipherKey}});
 }
 
 ####################################################################################################################################
@@ -816,9 +854,20 @@ sub boolTest
 }
 
 ####################################################################################################################################
+# getEncryptionKeySub - gets the encryption key (if it exists) used to read/write subsequent files
+####################################################################################################################################
+sub cipherKeySub
+{
+    my $self = shift;
+
+    return $self->get(INI_SECTION_CIPHER, INI_KEY_CIPHER_KEY, undef, false);
+}
+
+####################################################################################################################################
 # Properties.
 ####################################################################################################################################
 sub modified {shift->{bModified}}                                   # Has the data been modified since last load/save?
 sub exists {shift->{bExists}}                                       # Is the data persisted to file?
+sub cipherKey {shift->{strCipherKey}}                               # Return encryption key (will be undef if repo not encrypted)
 
 1;

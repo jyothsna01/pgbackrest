@@ -78,6 +78,8 @@ Option constants
 #define CFGOPT_PROCESS_MAX                                          cfgOptionProcessMax
 #define CFGOPT_PROTOCOL_TIMEOUT                                     cfgOptionProtocolTimeout
 #define CFGOPT_RECOVERY_OPTION                                      cfgOptionRecoveryOption
+#define CFGOPT_REPO_CIPHER_KEY                                      cfgOptionRepoCipherKey
+#define CFGOPT_REPO_CIPHER_TYPE                                     cfgOptionRepoCipherType
 #define CFGOPT_REPO_PATH                                            cfgOptionRepoPath
 #define CFGOPT_REPO_S3_BUCKET                                       cfgOptionRepoS3Bucket
 #define CFGOPT_REPO_S3_CA_FILE                                      cfgOptionRepoS3CaFile

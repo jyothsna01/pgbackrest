@@ -6,7 +6,7 @@ package pgBackRest::LibCAuto;
 # Library version (.999 indicates development version)
 sub libcAutoVersion
 {
-    return '1.25';
+    return '1.26.999';
 }
 
 # Configuration option value constants
@@ -16,6 +16,9 @@ sub libcAutoConstant
     {
         CFGOPTVAL_INFO_OUTPUT_TEXT                                       => 'text',
         CFGOPTVAL_INFO_OUTPUT_JSON                                       => 'json',
+
+        CFGOPTVAL_REPO_CIPHER_TYPE_NONE                                  => 'none',
+        CFGOPTVAL_REPO_CIPHER_TYPE_AES_256_CBC                           => 'aes-256-cbc',
 
         CFGOPTVAL_REPO_TYPE_CIFS                                         => 'cifs',
         CFGOPTVAL_REPO_TYPE_POSIX                                        => 'posix',
@@ -61,10 +64,18 @@ sub libcAutoExportTag
             'pageChecksumTest',
         ],
 
+        cipher =>
+        [
+            'CIPHER_MODE_ENCIPHER',
+            'CIPHER_MODE_DECIPHER',
+        ],
+
         config =>
         [
             'CFGOPTVAL_INFO_OUTPUT_TEXT',
             'CFGOPTVAL_INFO_OUTPUT_JSON',
+            'CFGOPTVAL_REPO_CIPHER_TYPE_NONE',
+            'CFGOPTVAL_REPO_CIPHER_TYPE_AES_256_CBC',
             'CFGOPTVAL_REPO_TYPE_CIFS',
             'CFGOPTVAL_REPO_TYPE_POSIX',
             'CFGOPTVAL_REPO_TYPE_S3',
@@ -153,6 +164,8 @@ sub libcAutoExportTag
             'CFGOPT_PROCESS_MAX',
             'CFGOPT_PROTOCOL_TIMEOUT',
             'CFGOPT_RECOVERY_OPTION',
+            'CFGOPT_REPO_CIPHER_KEY',
+            'CFGOPT_REPO_CIPHER_TYPE',
             'CFGOPT_REPO_PATH',
             'CFGOPT_REPO_S3_BUCKET',
             'CFGOPT_REPO_S3_CA_FILE',
@@ -235,6 +248,11 @@ sub libcAutoExportTag
             'ENCODE_TYPE_BASE64',
             'decodeToBin',
             'encodeToStr',
+        ],
+
+        random =>
+        [
+            'randomBytes',
         ],
     }
 }

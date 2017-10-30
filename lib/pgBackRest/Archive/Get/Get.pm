@@ -100,7 +100,7 @@ sub get
     $strDestinationFile = walPath($strDestinationFile, cfgOption(CFGOPT_DB_PATH, false), cfgCommandName(cfgCommandGet()));
 
     # Get the wal segment filename
-    my ($strArchiveId, $strArchiveFile) = $self->getCheck(
+    my ($strArchiveId, $strArchiveFile, $strCipherKey) = $self->getCheck(
         undef, undef, walIsSegment($strSourceArchive) ? $strSourceArchive : undef);
 
     if (!defined($strArchiveFile) && !walIsSegment($strSourceArchive) &&
@@ -127,9 +127,11 @@ sub get
         my $bSourceCompressed = $strArchiveFile =~ ('^.*\.' . COMPRESS_EXT . '$') ? true : false;
 
         # Copy the archive file to the requested location
+        # If the file is encrypted, then the key from the info file is required to open the archive file in the repo
         $oStorageRepo->copy(
             $oStorageRepo->openRead(
-                STORAGE_REPO_ARCHIVE . "/${strArchiveId}/${strArchiveFile}", {bProtocolCompress => !$bSourceCompressed}),
+                STORAGE_REPO_ARCHIVE . "/${strArchiveId}/${strArchiveFile}", {bProtocolCompress => !$bSourceCompressed,
+                strCipherKey => defined($strCipherKey) ? $strCipherKey : undef}),
             storageDb()->openWrite(
                 $strDestinationFile,
                 {rhyFilter => $bSourceCompressed ?

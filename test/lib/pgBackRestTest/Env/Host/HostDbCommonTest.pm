@@ -75,6 +75,7 @@ sub new
             oLogTest => $$oParam{oLogTest},
             bSynthetic => $$oParam{bSynthetic},
             bRepoLocal => $oParam->{bRepoLocal},
+            bRepoEncrypt => $oParam->{bRepoEncrypt},
         });
     bless $self, $class;
 
@@ -357,7 +358,8 @@ sub restore
         my $oExpectedManifest = new pgBackRest::Manifest(
             storageRepo()->pathGet(
                 STORAGE_REPO_BACKUP . qw{/} . ($strBackup eq 'latest' ? $oHostBackup->backupLast() : $strBackup) . qw{/} .
-                    FILE_MANIFEST));
+                    FILE_MANIFEST),
+            {strCipherKey => $oHostBackup->cipherKeyManifest()});
 
         $oExpectedManifestRef = $oExpectedManifest->{oContent};
 
@@ -410,7 +412,7 @@ sub restore
         $self->configRecovery($oHostBackup, $oRecoveryHashRef);
     }
 
-    # Create the restorecommand
+    # Create the restore command
     $self->executeSimple(
         $self->backrestExe() .
         ' --config=' . $self->backrestConfig() .
@@ -469,13 +471,15 @@ sub restoreCompare
             new pgBackRest::Manifest(
                 storageRepo()->pathGet(
                     STORAGE_REPO_BACKUP . qw{/} . ($strBackup eq 'latest' ? $oHostBackup->backupLast() : $strBackup) .
-                        '/'. FILE_MANIFEST));
+                        '/'. FILE_MANIFEST),
+            {strCipherKey => $oHostBackup->cipherKeyManifest()});
 
         $oLastManifest =
             new pgBackRest::Manifest(
                 storageRepo()->pathGet(
                     STORAGE_REPO_BACKUP . qw{/} .
-                        ${$oExpectedManifestRef}{&MANIFEST_SECTION_BACKUP}{&MANIFEST_KEY_PRIOR} . qw{/} . FILE_MANIFEST));
+                        ${$oExpectedManifestRef}{&MANIFEST_SECTION_BACKUP}{&MANIFEST_KEY_PRIOR} . qw{/} . FILE_MANIFEST),
+            {strCipherKey => $oHostBackup->cipherKeyManifest()});
     }
 
     # Generate the tablespace map for real backups
@@ -529,7 +533,8 @@ sub restoreCompare
 
     my $oActualManifest = new pgBackRest::Manifest(
         "${strTestPath}/" . FILE_MANIFEST,
-        {bLoad => false, strDbVersion => $oExpectedManifestRef->{&MANIFEST_SECTION_BACKUP_DB}{&MANIFEST_KEY_DB_VERSION}});
+        {bLoad => false, strDbVersion => $oExpectedManifestRef->{&MANIFEST_SECTION_BACKUP_DB}{&MANIFEST_KEY_DB_VERSION},
+            oStorage => storageTest()});
 
     $oActualManifest->set(
         MANIFEST_SECTION_BACKUP_DB, MANIFEST_KEY_DB_VERSION, undef,
@@ -602,6 +607,7 @@ sub restoreCompare
 
             if ($oStat->blocks > 0 || S_ISLNK($oStat->mode))
             {
+# CSHANG do we need a key here? HashSize calls openRead...
                 my ($strHash) = storageTest()->hashSize($oActualManifest->dbPathGet($strSectionPath, $strName));
 
                 $oActualManifest->set(
@@ -649,6 +655,14 @@ sub restoreCompare
 
     $oActualManifest->set(INI_SECTION_BACKREST, INI_KEY_VERSION, undef,
                           ${$oExpectedManifestRef}{&INI_SECTION_BACKREST}{&INI_KEY_VERSION});
+
+    # Copy encryption key if one exists
+    if (defined($oExpectedManifestRef->{&INI_SECTION_CIPHER}) &&
+        defined($oExpectedManifestRef->{&INI_SECTION_CIPHER}{&INI_KEY_CIPHER_KEY}))
+    {
+        $oActualManifest->set(INI_SECTION_CIPHER, INI_KEY_CIPHER_KEY, undef,
+                              $oExpectedManifestRef->{&INI_SECTION_CIPHER}{&INI_KEY_CIPHER_KEY});
+    }
 
     # This option won't be set in the actual manifest
     delete($oExpectedManifestRef->{&MANIFEST_SECTION_BACKUP_OPTION}{&MANIFEST_KEY_CHECKSUM_PAGE});

@@ -183,6 +183,10 @@ use constant CFGOPT_REPO_PATH                                       => 'repo-pat
     push @EXPORT, qw(CFGOPT_REPO_PATH);
 use constant CFGOPT_REPO_TYPE                                       => 'repo-type';
     push @EXPORT, qw(CFGOPT_REPO_TYPE);
+use constant CFGOPT_REPO_CIPHER_TYPE                                => 'repo-cipher-type';
+    push @EXPORT, qw(CFGOPT_REPO_CIPHER_TYPE);
+use constant CFGOPT_REPO_CIPHER_KEY                                 => 'repo-cipher-key';
+    push @EXPORT, qw(CFGOPT_REPO_CIPHER_KEY);
 
 # Repository S3
 use constant CFGOPT_REPO_S3_KEY                                     => 'repo-s3-key';
@@ -338,6 +342,13 @@ use constant CFGOPTVAL_REPO_TYPE_POSIX                              => 'posix';
     push @EXPORT, qw(CFGOPTVAL_REPO_TYPE_POSIX);
 use constant CFGOPTVAL_REPO_TYPE_S3                                 => 's3';
     push @EXPORT, qw(CFGOPTVAL_REPO_TYPE_S3);
+
+# Repo encryption type
+#-----------------------------------------------------------------------------------------------------------------------------------
+use constant CFGOPTVAL_REPO_CIPHER_TYPE_NONE                    => 'none';
+    push @EXPORT, qw(CFGOPTVAL_REPO_CIPHER_TYPE_NONE);
+use constant CFGOPTVAL_REPO_CIPHER_TYPE_AES_256_CBC             => 'aes-256-cbc';
+    push @EXPORT, qw(CFGOPTVAL_REPO_CIPHER_TYPE_AES_256_CBC);
 
 # Info output
 #-----------------------------------------------------------------------------------------------------------------------------------
@@ -1050,6 +1061,34 @@ my %hOptionRule =
             &CFGCMD_STANZA_CREATE => {},
             &CFGCMD_STANZA_UPGRADE => {},
         }
+    },
+
+    &CFGOPT_REPO_CIPHER_KEY =>
+    {
+        &CFGBLDDEF_RULE_SECTION => CFGDEF_SECTION_GLOBAL,
+        &CFGBLDDEF_RULE_TYPE => CFGOPTDEF_TYPE_STRING,
+        &CFGBLDDEF_RULE_SECURE => true,
+        &CFGBLDDEF_RULE_REQUIRED  => false,
+        &CFGBLDDEF_RULE_DEPEND =>
+        {
+            &CFGBLDDEF_RULE_DEPEND_OPTION  => CFGOPT_REPO_CIPHER_TYPE,
+            &CFGBLDDEF_RULE_DEPEND_LIST => [CFGOPTVAL_REPO_CIPHER_TYPE_AES_256_CBC],
+        },
+        &CFGBLDDEF_RULE_COMMAND => CFGOPT_REPO_TYPE,
+    },
+
+    &CFGOPT_REPO_CIPHER_TYPE =>
+    {
+        &CFGBLDDEF_RULE_SECTION => CFGDEF_SECTION_GLOBAL,
+        &CFGBLDDEF_RULE_TYPE => CFGOPTDEF_TYPE_STRING,
+        &CFGBLDDEF_RULE_DEFAULT => CFGOPTVAL_REPO_CIPHER_TYPE_NONE,
+        &CFGBLDDEF_RULE_SECURE => true,
+        &CFGBLDDEF_RULE_ALLOW_LIST =>
+        [
+            &CFGOPTVAL_REPO_CIPHER_TYPE_NONE,
+            &CFGOPTVAL_REPO_CIPHER_TYPE_AES_256_CBC,
+        ],
+        &CFGBLDDEF_RULE_COMMAND => CFGOPT_REPO_TYPE,
     },
 
     &CFGOPT_REPO_PATH =>

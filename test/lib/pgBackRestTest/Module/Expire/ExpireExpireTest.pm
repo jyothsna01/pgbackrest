@@ -77,7 +77,7 @@ sub run
     my $strDescription;
 
     my $bS3 = false;
-
+# CSHANG Should we rerun these tests with encrypted storage?
     if ($self->begin("local"))
     {
         # Create hosts, file object, and config
