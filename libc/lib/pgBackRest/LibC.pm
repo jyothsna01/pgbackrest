@@ -6,7 +6,7 @@ package pgBackRest::LibC;
 use 5.010001;
 use strict;
 use warnings;
-use Carp;
+use Carp qw(croak confess longmess);
 
 require Exporter;
 use AutoLoader;

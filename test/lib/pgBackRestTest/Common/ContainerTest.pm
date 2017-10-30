@@ -324,7 +324,7 @@ sub containerBuild
                 "    yum -y update && \\\n" .
                 "    yum -y install openssh-server openssh-clients wget sudo python-pip build-essential git \\\n" .
                 "        perl perl-Digest-SHA perl-DBD-Pg perl-XML-LibXML perl-IO-Socket-SSL \\\n" .
-                "        gcc make perl-ExtUtils-MakeMaker perl-Test-Simple";
+                "        gcc make perl-ExtUtils-MakeMaker perl-Test-Simple openssl-devel";
 
             if ($strOS eq VM_CO6)
             {
@@ -340,7 +340,7 @@ sub containerBuild
             $strScript .=
                 "    apt-get update && \\\n" .
                 "    apt-get -y install openssh-server wget sudo python-pip build-essential git \\\n" .
-                "        libdbd-pg-perl libhtml-parser-perl libio-socket-ssl-perl libxml-libxml-perl";
+                "        libdbd-pg-perl libhtml-parser-perl libio-socket-ssl-perl libxml-libxml-perl libssl-dev";
 
             if ($strOS eq VM_U14)
             {

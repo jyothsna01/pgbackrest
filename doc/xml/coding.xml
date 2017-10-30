@@ -1,0 +1,197 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE doc SYSTEM "doc.dtd">
+<doc title="{[project]}" subtitle="Coding Standards" toc="y">
+    <description>{[project]} Coding Standard.</description>
+
+    <section id="introduction">
+        <title>Introduction</title>
+
+        <p>!!!These are the C coding standards, blah, blah, blah.</p>
+    </section>
+
+    <section id="standards">
+        <title>Standards</title>
+
+        <p>!!!These are the C coding standards, blah, blah, blah.</p>
+
+        <section id="indentation">
+            <title>indentation</title>
+
+            <p>Indentation is four spaces - no tabs.</p>
+        </section>
+
+        <section id="naming">
+            <title>Naming</title>
+
+            <section id="variables">
+                <title>Variables</title>
+
+                <p>Variable names use camel case with the first letter lower-case.</p>
+
+                <list>
+                    <list-item><id>stanzaName</id> - the name of the stanza</list-item>
+                    <list-item><id>nameIdx</id> - loop variable for iterating through a list of names</list-item>
+                </list>
+
+                <p>Variable names should be descriptive.  Avoid <id>i</id>, <id>j</id>, etc.</p>
+            </section>
+
+            <section id="types">
+                <title>Types</title>
+
+                <p>Type names use camel case with the first letter upper case:
+
+                <code>typedef struct MemContext &lt;...&gt;</code>
+
+                <code>typedef enum {&lt;...&gt;} ErrorState;</code></p>
+            </section>
+
+            <section id="constants">
+                <title>Constants</title>
+
+                <p>Two ways to do constants:</p>
+
+                <list>
+                    <list-item>#define should be all caps with <id>_</id></list-item>
+                    <list-item>Enums follow the same case rules as variables.  They are strongly typed so this shouldn't present any confusion.</list-item>
+                </list>
+            </section>
+
+            <section id="macros">
+                <title>Macros</title>
+
+                <p>Macro names should always be upper-case with underscores between words.  However, these types of macros should be avoided whenever possible as they make code less clear and test coverage harder to measure.
+
+                Should follow the format:</p>
+
+                <code-block>
+#define MACRO(paramName1, paramName2)   \
+    &lt;code&gt;
+                </code-block>
+
+                <p>If the macro defines a block it should look like:</p>
+
+                <code-block>
+#define MACRO(paramName1, paramName2)   \
+{                                       \
+    &lt;code&gt;                              \
+}
+                </code-block>
+
+                <p>Continuation characters should all be aligned at column 132 (unlike the examples above that have been shortened for display purposes.
+
+                To avoid conflicts, variables in a macro will be named <id>[macro name]_[var name]</id>, e.g. <id>TEST_RESULT_resultExpected</id>. Variables that need to be accessed in wrapped code should be provided accessor macros.</p>
+            </section>
+
+            <section id="begin-end">
+                <title>Begin / End</title>
+
+                <p>Rather than <id>Start</id> / <id>Finish</id>, etc.</p>
+            </section>
+
+            <section id="new-free">
+                <title>New / Free</title>
+
+                <p>Rather than <id>Create</id> / <id>Destroy</id>, etc.</p>
+            </section>
+        </section>
+
+        <section id="formatting">
+            <title>Formatting</title>
+
+            <section id="line-wrapping">
+                <title>Line Wrapper</title>
+
+                <p>!!!</p>
+            </section>
+
+            <section id="braces">
+                <title>Braces</title>
+
+                <p>C allows braces to be excluded for a single statement.  However, braces should be used when the control statement (if, while, etc.) spans more than one line or the statement to be executed spans more than one line.</p>
+
+                <code-block>
+if (condition)
+    return value;
+                </code-block>
+
+                <code-block>
+if (conditionThatUsesEntireLine1 &amp;&amp;
+    conditionThatUsesEntireLine2)
+{
+    return value;
+}
+                </code-block>
+
+                <code-block>
+if (condition)
+{
+    return
+        valueThatUsesEntireLine1 &amp;&amp;
+        valueThatUsesEntireLine2;
+}
+                </code-block>
+
+                <p>Braces needed when the if is more than one line.</p>
+            </section>
+        </section>
+    </section>
+
+    <section id="language-elements">
+        <title>Language Elements</title>
+
+        <section id="data-types">
+            <title>Data Types</title>
+
+            <p>Don't get exotic - use the simplest type that will work.
+
+            Use <id>int</id> for general cases.  <id>int</id> will be at least 32 bits. When not using <id>int</id> use one of the defined types.</p>
+        </section>
+
+        <section id="macros">
+            <title>Macros</title>
+
+            <p>Don't use a macro when a function could be used instead.  Macros make it hard to measure code coverage.</p>
+        </section>
+
+        <section id="objects">
+            <title>Objects</title>
+
+            <p>Object oriented programming is used extensively.  Object pointer is always referred to as `this`.</p>
+        </section>
+    </section>
+
+    <section id="testing">
+        <title>Testing</title>
+
+        <section id="uncoverable-uncovered">
+            <title>Uncoverable/Uncovered Code</title>
+
+            <p>Code coverage is an important part of !!!.</p>
+
+            <section id="uncoverable">
+                <title>Uncoverable Code</title>
+
+                <p>The <id>uncoverable</id> keyword marks code that can never be covered.  For instance, a function that never returns because it always throws a error.  Uncoverable code should be rare to non-existent outside the common libraries and test code.</p>
+
+                <code-block>
+}   // {uncoverable - function throws error so never returns}
+                </code-block>
+
+                <p>Subsequent code that is uncoverable for the same reason is marked with <code>// {+uncoverable}</code>.</p>
+            </section>
+
+            <section id="uncovered">
+                <title>Uncovered Code</title>
+
+                <p>Marks code that is not tested for one reason or another.  This should be kept to a minimum and an excuse given for each instance.</p>
+
+                <code-block>
+exit(EXIT_FAILURE); // {uncoverable - test harness does not support non-zero exit}
+                </code-block>
+
+                <p>Subsequent code that is uncovered for the same reason is marked with `// {+uncovered}`.</p>
+            </section>
+        </section>
+    </section>
+</doc>

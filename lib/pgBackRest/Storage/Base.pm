@@ -25,6 +25,14 @@ use constant STORAGE_DECOMPRESS                                     => 'decompre
     push @EXPORT, qw(STORAGE_DECOMPRESS);
 
 ####################################################################################################################################
+# Cipher constants
+####################################################################################################################################
+use constant STORAGE_ENCIPHER                                       => 'encipher';
+    push @EXPORT, qw(STORAGE_ENCIPHER);
+use constant STORAGE_DECIPHER                                       => 'decipher';
+    push @EXPORT, qw(STORAGE_DECIPHER);
+
+####################################################################################################################################
 # Capability constants
 ####################################################################################################################################
 use constant STORAGE_CAPABILITY_LINK                                => 'link';
