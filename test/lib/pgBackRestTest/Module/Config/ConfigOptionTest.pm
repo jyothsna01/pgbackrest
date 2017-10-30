@@ -10,6 +10,7 @@ use parent 'pgBackRestTest::Env::ConfigEnvTest';
 use strict;
 use warnings FATAL => qw(all);
 use Carp qw(confess);
+use English '-no_match_vars';
 
 use Cwd qw(abs_path);
 
@@ -27,6 +28,94 @@ sub run
     my $self = shift;
 
     my @oyArray;
+
+    if ($self->begin('compare C lib with Perl lib'))
+    {
+        my $iOptionTotal = cfgOptionTotal();
+        my $iCommandTotal = 15;
+
+        foreach my $strTest (
+            'cfgOptionIndex', 'cfgOptionIndexTotal', 'cfgRuleOptionNameAlt', 'cfgRuleOptionNegate', 'cfgRuleOptionPrefix',
+            'cfgRuleOptionSection', 'cfgRuleOptionSecure', 'cfgRuleOptionValueHash')
+        {
+            my $bTestDefined = false;
+
+            for (my $iOptionIdx = 0; $iOptionIdx < $iOptionTotal; $iOptionIdx++)
+            {
+                my $strOptionName = pgBackRest::LibC::cfgOptionName($iOptionIdx);
+
+                #
+                # ----------------------------------------------------------------------------------------------------------------------
+                # $self->testResult(
+                #     sub {pgBackRest::LibC::cfgRuleOptionType($iOptionIdx)},
+                #     pgBackRest::Config::Rule::cfgRuleOptionType($strOptionName), "test option '${strOptionName}' type");
+
+                #
+                # ----------------------------------------------------------------------------------------------------------------------
+                # !!! Remove these
+                my $xResultC = eval "pgBackRest::LibC::${strTest}($iOptionIdx)"; ## no critic (BuiltinFunctions::ProhibitStringyEval)
+                my $xResultPerl = eval "pgBackRest::Config::Rule::${strTest}(\"$strOptionName\")"; ## no critic (BuiltinFunctions::ProhibitStringyEval)
+
+                if (defined($xResultC) && $xResultC eq '' &&
+                    ($strTest eq 'cfgRuleOptionNegate' || $strTest eq 'cfgRuleOptionSecure' ||
+                     $strTest eq 'cfgRuleOptionValueHash'))
+                {
+                    $xResultC = false;
+                }
+
+                $self->testResult(
+                    sub {$xResultC}, $xResultPerl,
+                    "option (${iOptionIdx}) '${strOptionName}' *${strTest} = " . (defined($xResultC) ? $xResultC : '[undef]'));
+
+                if (defined($xResultC))
+                {
+                    $bTestDefined = true;
+                }
+            }
+
+            if (!$bTestDefined)
+            {
+                confess &log(ERROR, "${strTest} had all [undef] values which should not be possible");
+            }
+        }
+
+        for (my $iCommandIdx = 0; $iCommandIdx < $iCommandTotal; $iCommandIdx++)
+        {
+            my $strCommandName = pgBackRest::LibC::cfgCommandName($iCommandIdx);
+
+            for (my $iOptionIdx = 0; $iOptionIdx < $iOptionTotal; $iOptionIdx++)
+            {
+                my $strOptionName = pgBackRest::LibC::cfgOptionName($iOptionIdx);
+                my $strMessage = "command (${iCommandIdx}) '${strCommandName}' option (${iOptionIdx}) '${strOptionName}'";
+
+                my $bValid = $self->testResult(
+                    sub {pgBackRest::LibC::cfgRuleOptionValid($iCommandIdx, $iOptionIdx) ? true : false},
+                    pgBackRest::Config::Rule::cfgRuleOptionValid($strCommandName, $strOptionName),
+                    "${strMessage} cfgRuleOptionValid");
+
+                if ($bValid)
+                {
+                    $self->testResult(
+                        sub {pgBackRest::LibC::cfgRuleOptionRequired($iCommandIdx, $iOptionIdx) ? true : false},
+                        pgBackRest::Config::Rule::cfgRuleOptionRequired($strCommandName, $strOptionName),
+                        "${strMessage} cfgRuleOptionRequired");
+
+                    my $bDepend = $self->testResult(
+                        sub {pgBackRest::LibC::cfgRuleOptionDepend($iCommandIdx, $iOptionIdx) ? true : false},
+                        pgBackRest::Config::Rule::cfgRuleOptionDepend($strCommandName, $strOptionName),
+                        "${strMessage} cfgRuleOptionDepend");
+
+                    if ($bDepend)
+                    {
+                        my $bDepend = $self->testResult(
+                            sub {cfgOptionName(pgBackRest::LibC::cfgRuleOptionDependOption($iCommandIdx, $iOptionIdx))},
+                            pgBackRest::Config::Rule::cfgRuleOptionDependOption($strCommandName, $strOptionName),
+                            "${strMessage} cfgRuleOptionDependOption");
+                    }
+                }
+            }
+        }
+    }
 
     if ($self->begin('backup with no stanza'))
     {

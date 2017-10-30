@@ -194,11 +194,11 @@ sub configLoad
     {
         for (my $iOptionIdx = 1; $iOptionIdx <= cfgOptionIndexTotal(CFGOPT_DB_HOST); $iOptionIdx++)
         {
-            if (cfgOptionTest(cfgOptionIndex(CFGOPT_DB_HOST, $iOptionIdx)) &&
-                !cfgOptionTest(cfgOptionIndex(CFGOPT_DB_CMD, $iOptionIdx)))
+            if (cfgOptionTest(cfgOptionIdFromIndex(CFGOPT_DB_HOST, $iOptionIdx)) &&
+                !cfgOptionTest(cfgOptionIdFromIndex(CFGOPT_DB_CMD, $iOptionIdx)))
             {
-                cfgOptionSet(cfgOptionIndex(CFGOPT_DB_CMD, $iOptionIdx), BACKREST_BIN);
-                $oOption{cfgOptionIndex(CFGOPT_DB_CMD, $iOptionIdx)}{source} = CFGDEF_SOURCE_DEFAULT;
+                cfgOptionSet(cfgOptionIdFromIndex(CFGOPT_DB_CMD, $iOptionIdx), BACKREST_BIN);
+                $oOption{cfgOptionIdFromIndex(CFGOPT_DB_CMD, $iOptionIdx)}{source} = CFGDEF_SOURCE_DEFAULT;
             }
         }
     }
@@ -773,8 +773,8 @@ sub optionValidate
                 {
                     confess &log(ERROR,
                         "${strCommand} command requires option: ${strOption}" .
-                        (defined(cfgRuleOptionHint($iCommandId, $iOptionId)) ?
-                            "\nHINT: " . cfgRuleOptionHint($iCommandId, $iOptionId) : ''),
+                            (defined(cfgRuleOptionSection($iOptionId)) &&
+                                cfgRuleOptionSection($iOptionId) eq CFGDEF_SECTION_STANZA ? "\nHINT: does this stanza exist?" : ''),
                         ERROR_OPTION_REQUIRED);
                 }
             }
@@ -895,9 +895,9 @@ sub optionAltName
 }
 
 ####################################################################################################################################
-# cfgOptionIndex - return name for options that can be indexed (e.g. db1-host, db2-host).
+# cfgOptionIdFromIndex - return name for options that can be indexed (e.g. db1-host, db2-host).
 ####################################################################################################################################
-sub cfgOptionIndex
+sub cfgOptionIdFromIndex
 {
     my $iOptionId = shift;
     my $iIndex = shift;
@@ -920,7 +920,7 @@ sub cfgOptionIndex
     return cfgOptionId("${strPrefix}${iIndex}" . substr(cfgOptionName($iOptionId), index(cfgOptionName($iOptionId), '-')));
 }
 
-push @EXPORT, qw(cfgOptionIndex);
+push @EXPORT, qw(cfgOptionIdFromIndex);
 
 ####################################################################################################################################
 # cfgOptionSource - how was the option set?

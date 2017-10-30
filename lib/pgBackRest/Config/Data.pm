@@ -387,7 +387,7 @@ use constant CFGDEF_DEFAULT_DB_TIMEOUT_MIN                          => WAIT_TIME
 use constant CFGDEF_DEFAULT_DB_TIMEOUT_MAX                          => 86400 * 7;
 
 use constant CFGDEF_DEFAULT_RETENTION_MIN                           => 1;
-use constant CFGDEF_DEFAULT_RETENTION_MAX                           => 999999999;
+use constant CFGDEF_DEFAULT_RETENTION_MAX                           => 9999999;
 
 ####################################################################################################################################
 # Option definition constants - rules, types, sections, etc.
@@ -411,10 +411,10 @@ use constant CFGBLDDEF_RULE_DEPEND_LIST                             => 'depend-l
     push @EXPORT, qw(CFGBLDDEF_RULE_DEPEND_LIST);
 use constant CFGBLDDEF_RULE_HASH_VALUE                              => 'hash-value';
     push @EXPORT, qw(CFGBLDDEF_RULE_HASH_VALUE);
-use constant CFGBLDDEF_RULE_HINT                                    => 'hint';
-    push @EXPORT, qw(CFGBLDDEF_RULE_HINT);
 use constant CFGBLDDEF_RULE_INDEX                                   => 'index';
     push @EXPORT, qw(CFGBLDDEF_RULE_INDEX);
+use constant CFGBLDDEF_RULE_INDEX_TOTAL                             => 'indexTotal';
+    push @EXPORT, qw(CFGBLDDEF_RULE_INDEX_TOTAL);
 use constant CFGBLDDEF_RULE_NEGATE                                  => 'negate';
     push @EXPORT, qw(CFGBLDDEF_RULE_NEGATE);
 use constant CFGBLDDEF_RULE_PREFIX                                  => 'prefix';
@@ -1695,7 +1695,6 @@ my %hOptionRule =
         &CFGBLDDEF_RULE_TYPE => CFGOPTDEF_TYPE_STRING,
         &CFGBLDDEF_RULE_PREFIX => CFGDEF_PREFIX_DB,
         &CFGBLDDEF_RULE_REQUIRED => true,
-        &CFGBLDDEF_RULE_HINT => "does this stanza exist?",
         &CFGBLDDEF_RULE_COMMAND =>
         {
             &CFGCMD_ARCHIVE_GET =>
@@ -1828,6 +1827,28 @@ foreach my $strKey (sort(keys(%hOptionRule)))
         &log(ASSERT, "type is required for option '${strKey}'");
     }
 
+    # Default required is true
+    if (!defined($hOptionRule{$strKey}{&CFGBLDDEF_RULE_REQUIRED}))
+    {
+        $hOptionRule{$strKey}{&CFGBLDDEF_RULE_REQUIRED} = true;
+    }
+
+    if (!defined($hOptionRule{$strKey}{&CFGBLDDEF_RULE_INDEX}))
+    {
+    }
+
+    # Set index total for db-*
+    if (defined($hOptionRule{$strKey}{&CFGBLDDEF_RULE_PREFIX}) &&
+        $hOptionRule{$strKey}{&CFGBLDDEF_RULE_PREFIX} eq CFGDEF_PREFIX_DB)
+    {
+        $hOptionRule{$strKey}{&CFGBLDDEF_RULE_INDEX_TOTAL} = CFGDEF_INDEX_DB;
+    }
+    # Else default index total is 1
+    else
+    {
+        $hOptionRule{$strKey}{&CFGBLDDEF_RULE_INDEX_TOTAL} = 1;
+    }
+
     # Hash types by default have hash values (rather than just a boolean list)
     if (!defined($hOptionRule{$strKey}{&CFGBLDDEF_RULE_HASH_VALUE}))
     {
@@ -1855,9 +1876,9 @@ foreach my $strKey (sort(keys(%hOptionRule)))
     }
 
     # Set all indices to 1 by default - this defines how many copies of any option there can be
-    if (!defined($hOptionRule{$strKey}{&CFGBLDDEF_RULE_INDEX}))
+    if (!defined($hOptionRule{$strKey}{&CFGBLDDEF_RULE_INDEX_TOTAL}))
     {
-        $hOptionRule{$strKey}{&CFGBLDDEF_RULE_INDEX} = 1;
+        $hOptionRule{$strKey}{&CFGBLDDEF_RULE_INDEX_TOTAL} = 1;
     }
 }
 
@@ -1873,13 +1894,15 @@ foreach my $strKey (sort(keys(%{$rhOptionRuleIndex})))
         $rhOptionRuleIndex->{$strKey}{&CFGBLDDEF_RULE_PREFIX} eq CFGDEF_PREFIX_DB)
     {
         my $strPrefix = $rhOptionRuleIndex->{$strKey}{&CFGBLDDEF_RULE_PREFIX};
-        $rhOptionRuleIndex->{$strKey}{&CFGBLDDEF_RULE_INDEX} = CFGDEF_INDEX_DB;
 
         for (my $iIndex = 1; $iIndex <= CFGDEF_INDEX_DB; $iIndex++)
         {
             my $strKeyNew = "${strPrefix}${iIndex}" . substr($strKey, length($strPrefix));
 
             $rhOptionRuleIndex->{$strKeyNew} = dclone($rhOptionRuleIndex->{$strKey});
+
+            $rhOptionRuleIndex->{$strKeyNew}{&CFGBLDDEF_RULE_INDEX_TOTAL} = CFGDEF_INDEX_DB;
+            $rhOptionRuleIndex->{$strKeyNew}{&CFGBLDDEF_RULE_INDEX} = $iIndex - 1;
 
             # Create the alternate name for option index 1
             if ($iIndex == 1)
@@ -1903,6 +1926,10 @@ foreach my $strKey (sort(keys(%{$rhOptionRuleIndex})))
         }
 
         delete($rhOptionRuleIndex->{$strKey});
+    }
+    else
+    {
+        $rhOptionRuleIndex->{$strKey}{&CFGBLDDEF_RULE_INDEX} = 0;
     }
 }
 

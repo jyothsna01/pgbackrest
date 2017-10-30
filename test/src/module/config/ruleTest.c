@@ -7,169 +7,119 @@ Test run
 ***********************************************************************************************************************************/
 void testRun()
 {
-    // -----------------------------------------------------------------------------------------------------------------------------
-    if (testBegin("iterate all option/command combinations"))
-    {
-        for (int optionId = 0; optionId < cfgOptionTotal(); optionId++)
-        {
-            // Ensure that option name maps back to id
-            const char *optionName = cfgOptionName(optionId);
-            TEST_RESULT_INT(cfgOptionId(optionName), optionId, "option name to id");
-
-            // Not much done with these except to ensure they don't blow up
-            cfgRuleOptionNameAlt(optionId);
-            cfgRuleOptionNegate(optionId);
-            cfgRuleOptionPrefix(optionId);
-            cfgRuleOptionSection(optionId);
-            cfgRuleOptionSecure(optionId);
-            cfgRuleOptionType(optionId);
-            cfgRuleOptionValueHash(optionId);
-
-            for (int commandId = 0; commandId < cfgCommandTotal(); commandId++)
-            {
-                // Ensure that command name maps back to id
-                const char *commandName = cfgCommandName(commandId);
-                TEST_RESULT_INT(cfgCommandId(commandName), commandId, "command name to id");
-
-                if (cfgRuleOptionValid(commandId, optionId))
-                {
-                    if (cfgRuleOptionAllowList(commandId, optionId))
-                    {
-                        for (int valueId = 0; valueId < cfgRuleOptionAllowListValueTotal(commandId, optionId); valueId++)
-                        {
-                            const char *value = cfgRuleOptionAllowListValue(commandId, optionId, valueId);
-
-                            TEST_RESULT_STR_NE(value, NULL, "allow list value exists");
-                            TEST_RESULT_BOOL(
-                                cfgRuleOptionAllowListValueValid(commandId, optionId, value), true, "allow list value valid");
-                        }
-
-                        TEST_RESULT_STR(
-                            cfgRuleOptionAllowListValueValid(commandId, optionId, BOGUS_STR), NULL, "bogus allow list value");
-                    }
-
-                    if (cfgRuleOptionAllowRange(commandId, optionId))
-                    {
-                        cfgRuleOptionAllowRangeMax(commandId, optionId);
-                        cfgRuleOptionAllowRangeMin(commandId, optionId);
-                    }
-
-                    cfgRuleOptionDefault(commandId, optionId);
-
-                    if (cfgRuleOptionDepend(commandId, optionId))
-                    {
-                        TEST_RESULT_STR_NE(
-                            cfgOptionName(cfgRuleOptionDependOption(commandId, optionId)), NULL, "depend option exists");
-
-                        for (int valueId = 0; valueId < cfgRuleOptionDependValueTotal(commandId, optionId); valueId++)
-                        {
-                            const char *value = cfgRuleOptionDependValue(commandId, optionId, valueId);
-
-                            TEST_RESULT_STR_NE(value, NULL, "depend option value exists");
-                            TEST_RESULT_BOOL(
-                                cfgRuleOptionDependValueValid(commandId, optionId, value), true, "depend option valid exists");
-                        }
-
-                        TEST_RESULT_STR(
-                            cfgRuleOptionDependValueValid(commandId, optionId, BOGUS_STR), NULL, "bogus depend option value");
-                    }
-
-                    cfgRuleOptionHint(commandId, optionId);
-
-                    cfgRuleOptionRequired(commandId, optionId);
-                }
-            }
-        }
-    }
-
     // Static tests against known values -- these may break as options change so will need to be kept up to date.  The tests have
     // generally been selected to favor values that are not expected to change but adjustments are welcome as long as the type of
     // test is not drastically changed.
     // -----------------------------------------------------------------------------------------------------------------------------
     if (testBegin("check known values"))
     {
-        TEST_RESULT_INT(cfgCommandId("archive-push"), CFGCMD_ARCHIVE_PUSH, "command id from name");
-        TEST_RESULT_INT(cfgCommandId(BOGUS_STR), -1, "command id from invalid command name");
+        // Generate standard error messages
+        char optionIdInvalidHighError[256];
+        snprintf(
+            optionIdInvalidHighError, sizeof(optionIdInvalidHighError), "option rule id %d invalid - must be >= 0 and < %d",
+            cfgRuleOptionTotal(), cfgRuleOptionTotal());
 
-        TEST_RESULT_INT(cfgOptionId("target"), CFGOPT_TARGET, "option id from name");
-        TEST_RESULT_INT(cfgOptionId(BOGUS_STR), -1, "option id from invalid option name");
+        char optionIdInvalidLowError[256];
+        snprintf(
+            optionIdInvalidLowError, sizeof(optionIdInvalidLowError), "option rule id -1 invalid - must be >= 0 and < %d",
+            cfgRuleOptionTotal());
 
-        TEST_RESULT_BOOL(cfgRuleOptionAllowList(CFGCMD_BACKUP, CFGOPT_TYPE), true, "allow list valid");
-        TEST_RESULT_BOOL(cfgRuleOptionAllowList(CFGCMD_BACKUP, CFGOPT_DB_HOST), false, "allow list not valid");
+        char commandIdInvalidHighError[256];
+        snprintf(
+            commandIdInvalidHighError, sizeof(commandIdInvalidHighError), "command rule id %d invalid - must be >= 0 and < %d",
+            cfgRuleCommandTotal(), cfgRuleCommandTotal());
 
-        TEST_RESULT_INT(cfgRuleOptionAllowListValueTotal(CFGCMD_BACKUP, CFGOPT_TYPE), 3, "allow list total");
+        char commandIdInvalidLowError[256];
+        snprintf(
+            commandIdInvalidLowError, sizeof(commandIdInvalidLowError), "command rule id -1 invalid - must be >= 0 and < %d",
+            cfgRuleCommandTotal());
 
-        TEST_RESULT_STR(cfgRuleOptionAllowListValue(CFGCMD_BACKUP, CFGOPT_TYPE, 0), "full", "allow list value 0");
-        TEST_RESULT_STR(cfgRuleOptionAllowListValue(CFGCMD_BACKUP, CFGOPT_TYPE, 1), "diff", "allow list value 1");
-        TEST_RESULT_STR(cfgRuleOptionAllowListValue(CFGCMD_BACKUP, CFGOPT_TYPE, 2), "incr", "allow list value 2");
+        // -------------------------------------------------------------------------------------------------------------------------
+        TEST_RESULT_STR(cfgRuleOptionName(cfgRuleOptConfig), "config", "option name");
+        TEST_ERROR(cfgRuleOptionName(-1), AssertError, optionIdInvalidLowError);
 
-        TEST_RESULT_BOOL(cfgRuleOptionAllowListValueValid(CFGCMD_BACKUP, CFGOPT_TYPE, "diff"), true, "allow list value valid");
+        TEST_RESULT_BOOL(cfgRuleOptionAllowList(cfgRuleCmdBackup, cfgRuleOptLogLevelConsole), true, "allow list valid");
+        TEST_RESULT_BOOL(cfgRuleOptionAllowList(cfgRuleCmdBackup, cfgRuleOptDbHost), false, "allow list not valid");
+        TEST_RESULT_BOOL(cfgRuleOptionAllowList(cfgRuleCmdBackup, cfgRuleOptType), true, "command allow list valid");
+
+        TEST_RESULT_INT(cfgRuleOptionAllowListValueTotal(cfgRuleCmdBackup, cfgRuleOptType), 3, "allow list total");
+
+        TEST_RESULT_STR(cfgRuleOptionAllowListValue(cfgRuleCmdBackup, cfgRuleOptType, 0), "full", "allow list value 0");
+        TEST_RESULT_STR(cfgRuleOptionAllowListValue(cfgRuleCmdBackup, cfgRuleOptType, 1), "diff", "allow list value 1");
+        TEST_RESULT_STR(cfgRuleOptionAllowListValue(cfgRuleCmdBackup, cfgRuleOptType, 2), "incr", "allow list value 2");
+        TEST_ERROR(
+            cfgRuleOptionAllowListValue(cfgRuleCmdBackup, cfgRuleOptType, 3), AssertError,
+            "value id 3 invalid - must be >= 0 and < 3");
+
         TEST_RESULT_BOOL(
-            cfgRuleOptionAllowListValueValid(CFGCMD_BACKUP, CFGOPT_TYPE, BOGUS_STR), false, "allow list value not valid");
-
-        TEST_RESULT_BOOL(cfgRuleOptionAllowRange(CFGCMD_BACKUP, CFGOPT_COMPRESS_LEVEL), true, "range allowed");
-        TEST_RESULT_BOOL(cfgRuleOptionAllowRange(CFGCMD_BACKUP, CFGOPT_BACKUP_HOST), false, "range not allowed");
-
-        TEST_RESULT_DOUBLE(cfgRuleOptionAllowRangeMin(CFGCMD_BACKUP, CFGOPT_DB_TIMEOUT), 0.1, "range min");
-        TEST_RESULT_DOUBLE(cfgRuleOptionAllowRangeMax(CFGCMD_BACKUP, CFGOPT_COMPRESS_LEVEL), 9, "range max");
-
-        TEST_RESULT_STR(cfgRuleOptionDefault(CFGCMD_BACKUP, CFGOPT_COMPRESS_LEVEL), "6", "default exists");
-        TEST_RESULT_STR(cfgRuleOptionDefault(CFGCMD_BACKUP, CFGOPT_BACKUP_HOST), NULL, "default does not exist");
-
-        TEST_RESULT_BOOL(cfgRuleOptionDepend(CFGCMD_RESTORE, CFGOPT_REPO_S3_KEY), true, "has depend option");
-        TEST_RESULT_BOOL(cfgRuleOptionDepend(CFGCMD_RESTORE, CFGOPT_TYPE), false, "does not have depend option");
-
-        TEST_RESULT_INT(cfgRuleOptionDependOption(CFGCMD_BACKUP, CFGOPT_DB_USER), CFGOPT_DB_HOST, "depend option id");
-
-        TEST_RESULT_INT(cfgRuleOptionDependValueTotal(CFGCMD_RESTORE, CFGOPT_TARGET), 3, "depend option value total");
-        TEST_RESULT_STR(cfgRuleOptionDependValue(CFGCMD_RESTORE, CFGOPT_TARGET, 0), "name", "depend option value 0");
-        TEST_RESULT_STR(cfgRuleOptionDependValue(CFGCMD_RESTORE, CFGOPT_TARGET, 1), "time", "depend option value 1");
-        TEST_RESULT_STR(cfgRuleOptionDependValue(CFGCMD_RESTORE, CFGOPT_TARGET, 2), "xid", "depend option value 2");
-
-        TEST_RESULT_BOOL(cfgRuleOptionDependValueValid(CFGCMD_RESTORE, CFGOPT_TARGET, "time"), true, "depend option value valid");
+            cfgRuleOptionAllowListValueValid(cfgRuleCmdBackup, cfgRuleOptType, "diff"), true, "allow list value valid");
         TEST_RESULT_BOOL(
-            cfgRuleOptionDependValueValid(CFGCMD_RESTORE, CFGOPT_TARGET, BOGUS_STR), false, "depend option value not valid");
+            cfgRuleOptionAllowListValueValid(cfgRuleCmdBackup, cfgRuleOptType, BOGUS_STR), false, "allow list value not valid");
 
-        TEST_RESULT_STR(cfgRuleOptionHint(CFGCMD_BACKUP, CFGOPT_DB1_PATH), "does this stanza exist?", "hint exists");
+        TEST_RESULT_BOOL(cfgRuleOptionAllowRange(cfgRuleCmdBackup, cfgRuleOptCompressLevel), true, "range allowed");
+        TEST_RESULT_BOOL(cfgRuleOptionAllowRange(cfgRuleCmdBackup, cfgRuleOptBackupHost), false, "range not allowed");
 
-        TEST_RESULT_INT(cfgOptionIndexTotal(CFGOPT_DB_PATH), 8, "index total > 1");
-        TEST_RESULT_INT(cfgOptionIndexTotal(CFGOPT_REPO_PATH), 1, "index total == 1");
+        TEST_RESULT_DOUBLE(cfgRuleOptionAllowRangeMin(cfgRuleCmdBackup, cfgRuleOptDbTimeout), 0.1, "range min");
+        TEST_RESULT_DOUBLE(cfgRuleOptionAllowRangeMax(cfgRuleCmdBackup, cfgRuleOptCompressLevel), 9, "range max");
 
-        TEST_RESULT_STR(cfgRuleOptionNameAlt(CFGOPT_DB1_HOST), "db-host", "alt name for indexed option");
-        TEST_RESULT_STR(cfgRuleOptionNameAlt(CFGOPT_PROCESS_MAX), "thread-max", "alt name for non-indexed option");
-        TEST_RESULT_STR(cfgRuleOptionNameAlt(CFGOPT_TYPE), NULL, "no alt name");
+        TEST_ERROR(cfgRuleOptionDefault(-1, cfgRuleOptCompressLevel), AssertError, commandIdInvalidLowError);
+        TEST_ERROR(cfgRuleOptionDefault(cfgRuleCmdBackup, cfgRuleOptionTotal()), AssertError, optionIdInvalidHighError);
+        TEST_RESULT_STR(cfgRuleOptionDefault(cfgRuleCmdBackup, cfgRuleOptCompressLevel), "6", "option default exists");
+        TEST_RESULT_STR(cfgRuleOptionDefault(cfgRuleCmdRestore, cfgRuleOptType), "default", "command default exists");
+        TEST_RESULT_STR(cfgRuleOptionDefault(cfgRuleCmdLocal, cfgRuleOptType), NULL, "command default does not exist");
+        TEST_RESULT_STR(cfgRuleOptionDefault(cfgRuleCmdBackup, cfgRuleOptBackupHost), NULL, "default does not exist");
 
-        TEST_RESULT_BOOL(cfgRuleOptionNegate(CFGOPT_ONLINE), true, "option can be negated");
-        TEST_RESULT_BOOL(cfgRuleOptionNegate(CFGOPT_TYPE), false, "option cannot be negated");
+        TEST_RESULT_BOOL(cfgRuleOptionDepend(cfgRuleCmdRestore, cfgRuleOptRepoS3Key), true, "has depend option");
+        TEST_RESULT_BOOL(cfgRuleOptionDepend(cfgRuleCmdRestore, cfgRuleOptType), false, "does not have depend option");
 
-        TEST_RESULT_STR(cfgRuleOptionPrefix(CFGOPT_DB_HOST), "db", "option prefix, index 1");
-        TEST_RESULT_STR(cfgRuleOptionPrefix(CFGOPT_DB8_HOST), "db", "option prefix, index 8");
-        TEST_RESULT_STR(cfgRuleOptionPrefix(CFGOPT_TYPE), NULL, "option has no prefix");
+        TEST_RESULT_INT(cfgRuleOptionDependOption(cfgRuleCmdBackup, cfgRuleOptDbUser), cfgRuleOptDbHost, "depend option id");
+        TEST_RESULT_INT(cfgRuleOptionDependOption(cfgRuleCmdBackup, cfgRuleOptBackupCmd), cfgRuleOptBackupHost, "depend option id");
 
-        TEST_RESULT_BOOL(cfgRuleOptionRequired(CFGCMD_BACKUP, CFGOPT_CONFIG), true, "option required");
-        TEST_RESULT_BOOL(cfgRuleOptionRequired(CFGCMD_RESTORE, CFGOPT_BACKUP_HOST), false, "option not required");
+        TEST_RESULT_INT(cfgRuleOptionDependValueTotal(cfgRuleCmdRestore, cfgRuleOptTarget), 3, "depend option value total");
+        TEST_RESULT_STR(cfgRuleOptionDependValue(cfgRuleCmdRestore, cfgRuleOptTarget, 0), "name", "depend option value 0");
+        TEST_RESULT_STR(cfgRuleOptionDependValue(cfgRuleCmdRestore, cfgRuleOptTarget, 1), "time", "depend option value 1");
+        TEST_RESULT_STR(cfgRuleOptionDependValue(cfgRuleCmdRestore, cfgRuleOptTarget, 2), "xid", "depend option value 2");
+        TEST_ERROR(
+            cfgRuleOptionDependValue(cfgRuleCmdRestore, cfgRuleOptTarget, 3), AssertError,
+            "value id 3 invalid - must be >= 0 and < 3");
 
-        TEST_RESULT_STR(cfgRuleOptionSection(CFGOPT_REPO_S3_KEY), "global", "global section");
-        TEST_RESULT_STR(cfgRuleOptionSection(CFGOPT_TYPE), NULL, "any section");
+        TEST_RESULT_BOOL(
+                cfgRuleOptionDependValueValid(cfgRuleCmdRestore, cfgRuleOptTarget, "time"), true, "depend option value valid");
+        TEST_RESULT_BOOL(
+            cfgRuleOptionDependValueValid(cfgRuleCmdRestore, cfgRuleOptTarget, BOGUS_STR), false, "depend option value not valid");
 
-        TEST_RESULT_BOOL(cfgRuleOptionSecure(CFGOPT_REPO_S3_KEY), true, "option secure");
-        TEST_RESULT_BOOL(cfgRuleOptionSecure(CFGOPT_BACKUP_HOST), false, "option not secure");
+        TEST_ERROR(cfgRuleOptionIndexTotal(cfgRuleOptionTotal()), AssertError, optionIdInvalidHighError);
+        TEST_RESULT_INT(cfgRuleOptionIndexTotal(cfgRuleOptDbPath), 8, "index total > 1");
+        TEST_RESULT_INT(cfgRuleOptionIndexTotal(cfgRuleOptRepoPath), 1, "index total == 1");
 
-        TEST_RESULT_INT(cfgRuleOptionType(CFGOPT_TYPE), CFGOPTDEF_TYPE_STRING, "string type");
-        TEST_RESULT_INT(cfgRuleOptionType(CFGOPT_COMPRESS), CFGOPTDEF_TYPE_BOOLEAN, "boolean type");
+        TEST_RESULT_STR(cfgRuleOptionNameAlt(cfgRuleOptProcessMax), "thread-max", "alt name");
+        TEST_RESULT_STR(cfgRuleOptionNameAlt(cfgRuleOptType), NULL, "no alt name");
 
-        TEST_RESULT_BOOL(cfgRuleOptionValid(CFGCMD_BACKUP, CFGOPT_TYPE), true, "option valid");
-        TEST_RESULT_BOOL(cfgRuleOptionValid(CFGCMD_INFO, CFGOPT_TYPE), false, "option not valid");
+        TEST_ERROR(cfgRuleOptionNegate(cfgRuleOptionTotal()), AssertError, optionIdInvalidHighError);
+        TEST_RESULT_BOOL(cfgRuleOptionNegate(cfgRuleOptOnline), true, "option can be negated");
+        TEST_RESULT_BOOL(cfgRuleOptionNegate(cfgRuleOptType), false, "option cannot be negated");
 
-        TEST_RESULT_BOOL(cfgRuleOptionValueHash(CFGOPT_LINK_MAP), true, "option is value hash");
-        TEST_RESULT_BOOL(cfgRuleOptionValueHash(CFGOPT_TYPE), false, "option is not value hash");
+        TEST_RESULT_STR(cfgRuleOptionPrefix(cfgRuleOptDbHost), "db", "option prefix");
+        TEST_RESULT_STR(cfgRuleOptionPrefix(cfgRuleOptType), NULL, "option has no prefix");
 
-        TEST_RESULT_STR(cfgCommandName(CFGCMD_ARCHIVE_GET), "archive-get", "command name from id");
-        TEST_RESULT_STR(cfgCommandName(-1), NULL, "invalid command id (lower bound)");
-        TEST_RESULT_STR(cfgCommandName(999999), NULL, "invalid command id (upper bound)");
+        TEST_RESULT_BOOL(cfgRuleOptionRequired(cfgRuleCmdBackup, cfgRuleOptConfig), true, "option required");
+        TEST_RESULT_BOOL(cfgRuleOptionRequired(cfgRuleCmdRestore, cfgRuleOptBackupHost), false, "option not required");
+        TEST_RESULT_BOOL(cfgRuleOptionRequired(cfgRuleCmdInfo, cfgRuleOptStanza), false, "command option not required");
 
-        TEST_RESULT_STR(cfgOptionName(CFGOPT_COMPRESS_LEVEL), "compress-level", "option name from invalid id");
-        TEST_RESULT_STR(cfgOptionName(-1), NULL, "invalid option id (lower bound)");
-        TEST_RESULT_STR(cfgOptionName(999999), NULL, "invalid option id (upper bound)");
+        TEST_RESULT_INT(cfgRuleOptionSection(cfgRuleOptRepoS3Key), cfgRuleSectionGlobal, "global section");
+        TEST_RESULT_INT(cfgRuleOptionSection(cfgRuleOptDbPath), cfgRuleSectionStanza, "stanza section");
+        TEST_RESULT_INT(cfgRuleOptionSection(cfgRuleOptType), cfgRuleSectionCommandLine, "command line only");
+
+        TEST_ERROR(cfgRuleOptionSecure(-1), AssertError, optionIdInvalidLowError);
+        TEST_RESULT_BOOL(cfgRuleOptionSecure(cfgRuleOptRepoS3Key), true, "option secure");
+        TEST_RESULT_BOOL(cfgRuleOptionSecure(cfgRuleOptBackupHost), false, "option not secure");
+
+        TEST_ERROR(cfgRuleOptionType(-1), AssertError, optionIdInvalidLowError);
+        TEST_RESULT_INT(cfgRuleOptionType(cfgRuleOptType), cfgRuleOptDefTypeString, "string type");
+        TEST_RESULT_INT(cfgRuleOptionType(cfgRuleOptCompress), cfgRuleOptDefTypeBoolean, "boolean type");
+
+        TEST_ERROR(cfgRuleOptionValid(cfgRuleCmdInfo, cfgRuleOptionTotal()), AssertError, optionIdInvalidHighError);
+        TEST_RESULT_BOOL(cfgRuleOptionValid(cfgRuleCmdBackup, cfgRuleOptType), true, "option valid");
+        TEST_RESULT_BOOL(cfgRuleOptionValid(cfgRuleCmdInfo, cfgRuleOptType), false, "option not valid");
     }
 }

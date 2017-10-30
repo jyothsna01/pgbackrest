@@ -56,6 +56,7 @@ sub cfgOptionRule
     my $strRule = shift;
 
     return
+        defined($rhOptionRuleIndex->{$strOption}{&CFGBLDDEF_RULE_COMMAND}{$strCommand}) &&
         defined($rhOptionRuleIndex->{$strOption}{&CFGBLDDEF_RULE_COMMAND}{$strCommand}{$strRule}) ?
             $rhOptionRuleIndex->{$strOption}{&CFGBLDDEF_RULE_COMMAND}{$strCommand}{$strRule} :
             $rhOptionRuleIndex->{$strOption}{$strRule};
@@ -388,17 +389,16 @@ sub cfgRuleOptionDependValueValid
 push @EXPORT, qw(cfgRuleOptionDependValueValid);
 
 ####################################################################################################################################
-# cfgRuleOptionHint - option hint, if any
+# cfgOptionIndex - index for option
 ####################################################################################################################################
-sub cfgRuleOptionHint
+sub cfgOptionIndex
 {
-    my $strCommand = shift;
     my $strOption = cfgOptionName(shift);
 
-    return cfgOptionRule($strCommand, $strOption, CFGBLDDEF_RULE_HINT);
+    return $rhOptionRuleIndex->{$strOption}{&CFGBLDDEF_RULE_INDEX};
 }
 
-push @EXPORT, qw(cfgRuleOptionHint);
+push @EXPORT, qw(cfgOptionIndex);
 
 ####################################################################################################################################
 # cfgOptionIndexTotal - max index for options that are indexed (e.g., db)
@@ -407,7 +407,7 @@ sub cfgOptionIndexTotal
 {
     my $strOption = cfgOptionName(shift);
 
-    return $rhOptionRuleIndex->{$strOption}{&CFGBLDDEF_RULE_INDEX};
+    return $rhOptionRuleIndex->{$strOption}{&CFGBLDDEF_RULE_INDEX_TOTAL};
 }
 
 push @EXPORT, qw(cfgOptionIndexTotal);
@@ -506,7 +506,9 @@ sub cfgRuleOptionValid
     my $strCommand = shift;
     my $strOption = cfgOptionName(shift);
 
-    return defined($rhOptionRuleIndex->{$strOption}{&CFGBLDDEF_RULE_COMMAND}{$strCommand}) ? true : false;
+    return
+        defined($rhOptionRuleIndex->{$strOption}{&CFGBLDDEF_RULE_COMMAND}) &&
+        defined($rhOptionRuleIndex->{$strOption}{&CFGBLDDEF_RULE_COMMAND}{$strCommand}) ? true : false;
 }
 
 push @EXPORT, qw(cfgRuleOptionValid);

@@ -1,7 +1,7 @@
 ####################################################################################################################################
 # ConfigConfigTest.pm - Tests for mixed command line and config file options in Config.pm
 ####################################################################################################################################
-package pgBackRestTest::Module::Config::ConfigConfigTest;
+package pgBackRestTest::Module::Config::ConfigConfigPerlTest;
 use parent 'pgBackRestTest::Env::ConfigEnvTest';
 
 ####################################################################################################################################

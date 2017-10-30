@@ -242,15 +242,24 @@ my $oTestDef =
             [
                 {
                     &TESTDEF_NAME => 'rule',
-                    &TESTDEF_TOTAL => 2,
+                    &TESTDEF_TOTAL => 1,
                     &TESTDEF_C => true,
 
                     &TESTDEF_COVERAGE =>
                     {
-                        'config/config' => TESTDEF_COVERAGE_NOCODE,
-                        'config/config.auto' => TESTDEF_COVERAGE_FULL,
-                        'config/configRule' => TESTDEF_COVERAGE_FULL,
-                        'config/configRule.auto' => TESTDEF_COVERAGE_FULL,
+                        'config/rule' => TESTDEF_COVERAGE_FULL,
+                        'config/rule.auto' => TESTDEF_COVERAGE_NOCODE,
+                    },
+                },
+                {
+                    &TESTDEF_NAME => 'config',
+                    &TESTDEF_TOTAL => 1,
+                    &TESTDEF_C => true,
+
+                    &TESTDEF_COVERAGE =>
+                    {
+                        'config/config' => TESTDEF_COVERAGE_PARTIAL,
+                        'config/config.auto' => TESTDEF_COVERAGE_NOCODE,
                     },
                 },
                 {
@@ -259,10 +268,11 @@ my $oTestDef =
                 },
                 {
                     &TESTDEF_NAME => 'option',
-                    &TESTDEF_TOTAL => 34,
+                    &TESTDEF_CLIB => true,
+                    &TESTDEF_TOTAL => 35,
                 },
                 {
-                    &TESTDEF_NAME => 'config',
+                    &TESTDEF_NAME => 'config-perl',
                     &TESTDEF_TOTAL => 25,
                 }
             ]
