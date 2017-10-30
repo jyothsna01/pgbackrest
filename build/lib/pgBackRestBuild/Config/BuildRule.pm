@@ -248,7 +248,7 @@ sub buildConfigRule
     my $rhEnum = $rhBuild->{&BLD_FILE}{&BLDLCL_FILE_RULE}{&BLD_ENUM}{&BLDLCL_ENUM_COMMAND};
 
     my $strBuildSource =
-        "CommandRule commandRule[] = CONFIG_COMMAND_LIST\n" .
+        "CommandRule commandRule[] = CONFIGURATION_DEFINITION_COMMAND_LIST\n" .
         "(";
 
     foreach my $strCommand (sort(keys(%{cfgbldCommandGet()})))
@@ -260,9 +260,9 @@ sub buildConfigRule
         # Build command data
         $strBuildSource .=
             "\n" .
-            "    CONFIG_COMMAND\n" .
+            "    CONFIGURATION_DEFINITION_COMMAND\n" .
             "    (\n" .
-            "        CONFIG_COMMAND_NAME(\"${strCommand}\")\n" .
+            "        CONFIGURATION_DEFINITION_COMMAND_NAME(\"${strCommand}\")\n" .
             "    )\n";
     };
 
@@ -302,7 +302,7 @@ sub buildConfigRule
     $rhEnum = $rhBuild->{&BLD_FILE}{&BLDLCL_FILE_RULE}{&BLD_ENUM}{&BLDLCL_ENUM_OPTION};
 
     $strBuildSource =
-        "OptionRule optionRule[] = CONFIG_OPTION_LIST\n" .
+        "OptionRule optionRule[] = CONFIGURATION_DEFINITION_OPTION_LIST\n" .
         "(";
 
     foreach my $strOption (sort(keys(%{$rhOptionRule})))
@@ -319,26 +319,26 @@ sub buildConfigRule
         $strBuildSource .=
             "\n" .
             "    // " . (qw{-} x 125) . "\n" .
-            "    CONFIG_OPTION\n" .
+            "    CONFIGURATION_DEFINITION_OPTION\n" .
             "    (\n";
 
         my $bRequired = $rhOption->{&CFGBLDDEF_RULE_REQUIRED};
 
         $strBuildSource .=
-            "        CONFIG_OPTION_NAME(\"${strOption}\")\n" .
-            "        CONFIG_OPTION_REQUIRED(" . ($bRequired ? 'true' : 'false') . ")\n" .
-            "        CONFIG_OPTION_SECTION(cfgRuleSection" .
+            "        CONFIGURATION_DEFINITION_OPTION_NAME(\"${strOption}\")\n" .
+            "        CONFIGURATION_DEFINITION_OPTION_REQUIRED(" . ($bRequired ? 'true' : 'false') . ")\n" .
+            "        CONFIGURATION_DEFINITION_OPTION_SECTION(cfgRuleSection" .
                 (defined($rhOption->{&CFGBLDDEF_RULE_SECTION}) ? ucfirst($rhOption->{&CFGBLDDEF_RULE_SECTION}) : 'CommandLine') .
                 ")\n" .
-            "        CONFIG_OPTION_TYPE(" . buildConfigOptionTypeRuleEnum($rhOption->{&CFGBLDDEF_RULE_TYPE}) . ")\n";
+            "        CONFIGURATION_DEFINITION_OPTION_TYPE(" . buildConfigOptionTypeRuleEnum($rhOption->{&CFGBLDDEF_RULE_TYPE}) . ")\n";
 
         $strBuildSource .=
             "\n" .
-            "        CONFIG_OPTION_INDEX_TOTAL(" . $rhOption->{&CFGBLDDEF_RULE_INDEX_TOTAL} . ")\n" .
-            "        CONFIG_OPTION_NEGATE(" . ($rhOption->{&CFGBLDDEF_RULE_NEGATE} ? 'true' : 'false') . ")\n" .
-            "        CONFIG_OPTION_SECURE(" . ($rhOption->{&CFGBLDDEF_RULE_SECURE} ? 'true' : 'false') . ")\n" .
+            "        CONFIGURATION_DEFINITION_OPTION_INDEX_TOTAL(" . $rhOption->{&CFGBLDDEF_RULE_INDEX_TOTAL} . ")\n" .
+            "        CONFIGURATION_DEFINITION_OPTION_NEGATE(" . ($rhOption->{&CFGBLDDEF_RULE_NEGATE} ? 'true' : 'false') . ")\n" .
+            "        CONFIGURATION_DEFINITION_OPTION_SECURE(" . ($rhOption->{&CFGBLDDEF_RULE_SECURE} ? 'true' : 'false') . ")\n" .
             "\n" .
-            "        CONFIG_COMMAND_VALID_LIST\n" .
+            "        CONFIGURATION_DEFINITION_OPTION_COMMAND_LIST\n" .
             "        (\n";
 
         foreach my $strCommand (sort(keys(%{cfgbldCommandGet()})))
@@ -346,7 +346,7 @@ sub buildConfigRule
             if (defined($rhOption->{&CFGBLDDEF_RULE_COMMAND}{$strCommand}))
             {
                 $strBuildSource .=
-                    "            CONFIG_COMMAND_VALID(" . buildConfigCommandRuleEnum($strCommand) . ")\n";
+                    "            CONFIGURATION_DEFINITION_OPTION_COMMAND(" . buildConfigCommandRuleEnum($strCommand) . ")\n";
             }
         }
 

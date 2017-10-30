@@ -19,19 +19,26 @@ typedef struct OptionRule
     void **data;
 } OptionRule;
 
-#define CONFIG_OPTION_LIST(...)                                                                                                    \
+#define CONFIGURATION_DEFINITION_OPTION_LIST(...)                                                                                         \
     {__VA_ARGS__};
 
-#define CONFIG_OPTION(...)                                                                                                         \
+#define CONFIGURATION_DEFINITION_OPTION(...)                                                                                              \
     {__VA_ARGS__},
 
-#define CONFIG_OPTION_NAME(nameParam) .name = nameParam,
-#define CONFIG_OPTION_INDEX_TOTAL(indexTotalParam) .indexTotal = indexTotalParam,
-#define CONFIG_OPTION_NEGATE(negateParam) .negate = negateParam,
-#define CONFIG_OPTION_REQUIRED(requiredParam) .required = requiredParam,
-#define CONFIG_OPTION_SECTION(sectionParam) .section = sectionParam,
-#define CONFIG_OPTION_SECURE(secureParam) .secure = secureParam,
-#define CONFIG_OPTION_TYPE(typeParam) .type = typeParam,
+#define CONFIGURATION_DEFINITION_OPTION_NAME(nameParam)                                                                                   \
+    .name = nameParam,
+#define CONFIGURATION_DEFINITION_OPTION_INDEX_TOTAL(indexTotalParam)                                                                      \
+    .indexTotal = indexTotalParam,
+#define CONFIGURATION_DEFINITION_OPTION_NEGATE(negateParam)                                                                               \
+    .negate = negateParam,
+#define CONFIGURATION_DEFINITION_OPTION_REQUIRED(requiredParam)                                                                           \
+    .required = requiredParam,
+#define CONFIGURATION_DEFINITION_OPTION_SECTION(sectionParam)                                                                             \
+    .section = sectionParam,
+#define CONFIGURATION_DEFINITION_OPTION_SECURE(secureParam)                                                                               \
+    .secure = secureParam,
+#define CONFIGURATION_DEFINITION_OPTION_TYPE(typeParam)                                                                                   \
+    .type = typeParam,
 
 #define CONFIG_DATA_PUSH_LIST(type, length, data, ...)                                                                             \
     (void *)((uint32)type << 24 | (uint32)length << 16 | (uint32)data), __VA_ARGS__
@@ -39,10 +46,10 @@ typedef struct OptionRule
 #define CONFIG_DATA_PUSH(type, length, data)                                                                                       \
     (void *)((uint32)type << 24 | (uint32)length << 16 | (uint32)data)
 
-#define CONFIG_COMMAND_VALID_LIST(...)                                                                                             \
+#define CONFIGURATION_DEFINITION_OPTION_COMMAND_LIST(...)                                                                                             \
     .commandValid = 0 __VA_ARGS__,
 
-#define CONFIG_COMMAND_VALID(commandParam)                                                                                         \
+#define CONFIGURATION_DEFINITION_OPTION_COMMAND(commandParam)                                                                                         \
     | (1 << commandParam)
 
 typedef enum
@@ -95,13 +102,14 @@ typedef struct CommandRule
     char *name;
 } CommandRule;
 
-#define CONFIG_COMMAND_LIST(...)                                                                                                   \
+#define CONFIGURATION_DEFINITION_COMMAND_LIST(...)                                                                                        \
     {__VA_ARGS__};
 
-#define CONFIG_COMMAND(...)                                                                                                        \
+#define CONFIGURATION_DEFINITION_COMMAND(...)                                                                                             \
     {__VA_ARGS__},
 
-#define CONFIG_COMMAND_NAME(nameParam) .name = nameParam,
+#define CONFIGURATION_DEFINITION_COMMAND_NAME(nameParam)                                                                                  \
+    .name = nameParam,
 
 #include "rule.auto.c"
 

@@ -41,6 +41,10 @@ Vagrant.configure(2) do |config|
         /etc/init.d/networking restart
 
         #---------------------------------------------------------------------------------------------------------------------------
+        echo 'Start Time Sync Service' && date
+        /usr/sbin/VBoxService --timesync-set-start
+
+        #---------------------------------------------------------------------------------------------------------------------------
         echo 'Install Perl Modules' && date
         apt-get install -y libdbd-pg-perl libio-socket-ssl-perl libxml-libxml-perl libxml-checker-perl libperl-critic-perl \
             libdevel-nytprof-perl
